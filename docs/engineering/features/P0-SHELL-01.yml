@@ -1,6 +1,6 @@
 id: P0-SHELL-01
 title: Launch and verify the local Command Centre shell
-status: in_progress
+status: verified
 source_requirements:
   - Phase 0 Founder Control Plane
   - Phase 1 visual shell precursor
@@ -34,5 +34,6 @@ proof_scenarios:
   - healthy local API
   - backend unavailable
   - manual degraded-state preview
+  - invalid health evidence locks consequential controls
+  - loading, live, degraded, stale, and error at three desktop viewports
 rollback: Remove the shell route and retain the health API contract.
-

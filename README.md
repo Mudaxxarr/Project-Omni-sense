@@ -15,6 +15,10 @@ Phase 0 is in progress. The repository is establishing:
 
 No real accounting source, provider credential, external action, microphone, camera, or AI model is connected.
 
+`P0-SHELL-01` is mechanically and visually verified against the native local
+stack. The Phase 0 release tag remains blocked on CI parity, the remaining
+scenario factory, and the owner's one-time visual North Star approval.
+
 ## Intended local commands
 
 ```powershell
@@ -32,4 +36,3 @@ uv sync
 - `2026-07-29-local-cpu-runtime-design.md`
 - `PROJECT_OMNISCIENCE_FOUNDER_MODE_EXECUTION_PLAN.md`
 - `01-foundation-trust-kernel.md` through `08-resilience-polish-scale.md`
-
