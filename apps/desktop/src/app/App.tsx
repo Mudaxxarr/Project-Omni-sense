@@ -1,10 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { CommandShell } from "./CommandShell";
-import type { HealthScenario, HealthView } from "./contracts";
+import type {
+  HealthScenario,
+  HealthView,
+  ScenarioId,
+  ScenarioView,
+} from "./contracts";
 import { fetchHealth } from "./health";
+import { fetchScenario } from "./scenario";
+import { ScenarioLab } from "./ScenarioLab";
 
 let pendingHealthRequest: Promise<HealthView> | null = null;
+const pendingScenarioRequests = new Map<ScenarioId, Promise<ScenarioView>>();
 
 function loadHealth(): Promise<HealthView> {
   if (pendingHealthRequest) {
@@ -18,6 +26,24 @@ function loadHealth(): Promise<HealthView> {
     pendingHealthRequest = null;
   });
   return pendingHealthRequest;
+}
+
+function loadScenario(scenario: ScenarioId): Promise<ScenarioView> {
+  const pendingRequest = pendingScenarioRequests.get(scenario);
+  if (pendingRequest) {
+    return pendingRequest;
+  }
+
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 4_000);
+  const request = fetchScenario(scenario, controller.signal).finally(() => {
+    window.clearTimeout(timeout);
+    if (pendingScenarioRequests.get(scenario) === request) {
+      pendingScenarioRequests.delete(scenario);
+    }
+  });
+  pendingScenarioRequests.set(scenario, request);
+  return request;
 }
 
 function requestedScenario(): HealthScenario | null {
@@ -45,7 +71,25 @@ function withDegradedPostgres(view: HealthView): HealthView {
   };
 }
 
-export function App() {
+const fixtureScenarios = new Set<ScenarioId>([
+  "valid",
+  "stale",
+  "duplicate",
+  "contradictory",
+  "denied",
+  "degraded",
+  "timeout",
+  "recovery",
+]);
+
+function requestedFixtureScenario(): ScenarioId | null {
+  const value = new URLSearchParams(window.location.search).get("scenario");
+  return fixtureScenarios.has(value as ScenarioId)
+    ? (value as ScenarioId)
+    : null;
+}
+
+function HealthRoute() {
   const forcedScenario = useMemo(requestedScenario, []);
   const [health, setHealth] = useState<HealthView | null>(null);
   const [scenario, setScenario] = useState<HealthScenario>(
@@ -93,4 +137,67 @@ export function App() {
   }, [forcedScenario]);
 
   return <CommandShell health={health} scenario={scenario} />;
+}
+
+function ScenarioRoute({ initialScenario }: { initialScenario: ScenarioId }) {
+  const [selectedScenario, setSelectedScenario] =
+    useState<ScenarioId>(initialScenario);
+  const [view, setView] = useState<ScenarioView | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isCurrent = true;
+    setLoading(true);
+    setView(null);
+    setError(null);
+
+    loadScenario(selectedScenario)
+      .then((scenarioView) => {
+        if (!isCurrent) {
+          return;
+        }
+        setView(scenarioView);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!isCurrent) {
+          return;
+        }
+        setView(null);
+        setError("Scenario contract unavailable.");
+        setLoading(false);
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [selectedScenario]);
+
+  const selectScenario = (scenario: ScenarioId) => {
+    const nextUrl = new URL(window.location.href);
+    nextUrl.search = "";
+    nextUrl.searchParams.set("scenario", scenario);
+    window.history.replaceState({}, "", nextUrl);
+    setSelectedScenario(scenario);
+  };
+
+  return (
+    <ScenarioLab
+      error={error}
+      loading={loading}
+      onSelect={selectScenario}
+      view={view}
+    />
+  );
+}
+
+export function App() {
+  const fixtureScenario = useMemo(requestedFixtureScenario, []);
+
+  return fixtureScenario ? (
+    <ScenarioRoute initialScenario={fixtureScenario} />
+  ) : (
+    <HealthRoute />
+  );
 }

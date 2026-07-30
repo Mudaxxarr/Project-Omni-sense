@@ -1,0 +1,126 @@
+import AxeBuilder from "@axe-core/playwright";
+import { expect, test } from "@playwright/test";
+import { mkdir } from "node:fs/promises";
+import path from "node:path";
+
+const artifactDir = path.resolve(
+  process.cwd(),
+  "..",
+  "..",
+  "output",
+  "playwright",
+  "phase0-scenarios",
+);
+
+test.beforeAll(async () => {
+  await mkdir(artifactDir, { recursive: true });
+});
+
+const viewports = [
+  { name: "1280x720", width: 1280, height: 720 },
+  { name: "1440x900", width: 1440, height: 900 },
+  { name: "1920x1080", width: 1920, height: 1080 },
+] as const;
+
+const scenarios = [
+  "valid",
+  "stale",
+  "duplicate",
+  "contradictory",
+  "denied",
+  "degraded",
+  "timeout",
+  "recovery",
+] as const;
+
+for (const scenario of scenarios) {
+  for (const viewport of viewports) {
+    test(`${scenario} fixture is safe at ${viewport.name}`, async ({ page }) => {
+      const browserErrors: string[] = [];
+      const networkErrors: string[] = [];
+      page.on("console", (message) => {
+        if (message.type() === "error") {
+          browserErrors.push(message.text());
+        }
+      });
+      page.on("pageerror", (error) => browserErrors.push(error.message));
+      page.on("requestfailed", (request) => {
+        networkErrors.push(
+          `${request.method()} ${request.url()} ${request.failure()?.errorText ?? "failed"}`,
+        );
+      });
+      page.on("response", (response) => {
+        if (response.status() >= 400) {
+          networkErrors.push(`${response.status()} ${response.url()}`);
+        }
+      });
+
+      await page.setViewportSize(viewport);
+      await page.goto(`/?scenario=${scenario}`, { waitUntil: "networkidle" });
+
+      await expect(page).toHaveTitle("OMNISCIENCE Command Centre");
+      await expect(
+        page.getByRole("heading", { name: "Deterministic Scenario Lab" }),
+      ).toBeVisible();
+      await expect(page.getByText("Anonymized fixture data")).toBeVisible();
+      await expect(page.getByText("12 entity families")).toBeVisible();
+      await expect(page.getByText("2026-07-29T12:00:00Z")).toBeVisible();
+      await expect(page.getByText("29 Jul 2026, 17:00 PKT")).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: "Consequential actions locked" }),
+      ).toBeDisabled();
+      await expect(
+        page.getByRole("button", {
+          name: new RegExp(`^${scenario}$`, "i"),
+        }),
+      ).toHaveAttribute("aria-pressed", "true");
+
+      const hasHorizontalOverflow = await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth >
+          document.documentElement.clientWidth,
+      );
+      expect(hasHorizontalOverflow).toBe(false);
+      const hasVerticalOverflow = await page.evaluate(
+        () =>
+          document.documentElement.scrollHeight >
+          document.documentElement.clientHeight,
+      );
+      expect(hasVerticalOverflow).toBe(false);
+
+      if (viewport.name === "1440x900") {
+        const accessibility = await new AxeBuilder({ page }).analyze();
+        expect(
+          accessibility.violations
+            .filter(
+              (violation) =>
+                violation.impact === "serious" ||
+                violation.impact === "critical",
+            )
+            .map((violation) => violation.id),
+        ).toEqual([]);
+      }
+
+      await page.screenshot({
+        path: path.join(artifactDir, `${scenario}-${viewport.name}.png`),
+      });
+
+      expect(browserErrors).toEqual([]);
+      expect(networkErrors).toEqual([]);
+    });
+  }
+}
+
+test("scenario switch changes the visible API-backed state", async ({ page }) => {
+  await page.goto("/?scenario=valid", { waitUntil: "networkidle" });
+
+  await page.getByRole("button", { name: "Stale" }).click();
+
+  await expect(page).toHaveURL(/\?scenario=stale$/);
+  await expect(
+    page.getByRole("heading", { name: "Fixture source is stale" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Stale" }),
+  ).toHaveAttribute("aria-pressed", "true");
+});

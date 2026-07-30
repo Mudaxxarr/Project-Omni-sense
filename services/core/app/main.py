@@ -1,10 +1,11 @@
 """OMNISCIENCE local core API."""
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from services.core.app.contracts import HealthView
+from services.core.app.contracts import HealthView, ScenarioView
 from services.core.app.health import build_health_view
+from services.core.app.scenarios import build_scenario_view
 
 app = FastAPI(
     title="OMNISCIENCE Core",
@@ -37,3 +38,20 @@ def health() -> HealthView:
     """Report local runtime health without concealing missing prerequisites."""
 
     return build_health_view()
+
+
+@app.get(
+    "/v1/scenarios/{scenario_id}",
+    response_model=ScenarioView,
+    tags=["fixtures"],
+)
+def scenario(scenario_id: str) -> ScenarioView:
+    """Expose one deterministic local fixture without enabling real action."""
+
+    try:
+        return build_scenario_view(scenario_id)
+    except KeyError as error:
+        raise HTTPException(
+            status_code=404,
+            detail="Unknown fixture scenario.",
+        ) from error

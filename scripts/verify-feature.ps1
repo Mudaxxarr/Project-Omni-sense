@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet("P0-SHELL-01")]
+    [ValidateSet("P0-SHELL-01", "P0-SCENARIO-01")]
     [string]$Feature = "P0-SHELL-01",
     [switch]$AllowMissingPostgres,
     [switch]$SkipRuntime
@@ -14,8 +14,14 @@ $artifactDir = Join-Path $repoRoot "artifacts\verification\$Feature"
 $screenshotArtifactDir = Join-Path $artifactDir "screenshots"
 $manifestPath = Join-Path $artifactDir "manifest.json"
 $featureContractPath = Join-Path $repoRoot "docs\engineering\features\$Feature.yml"
-$playwrightDir = Join-Path $repoRoot "output\playwright\phase0"
-$playwrightResultsDir = Join-Path $playwrightDir "test-results"
+$playwrightRoot = Join-Path $repoRoot "output\playwright"
+$playwrightScreenshotDir = if ($Feature -eq "P0-SCENARIO-01") {
+    Join-Path $playwrightRoot "phase0-scenarios"
+} else {
+    Join-Path $playwrightRoot "phase0"
+}
+$playwrightResultsDir = Join-Path $playwrightRoot "phase0\test-results"
+$playwrightJunitPath = Join-Path $playwrightRoot "phase0\test-results.xml"
 $startedAt = [DateTimeOffset]::UtcNow
 $checks = [System.Collections.Generic.List[object]]::new()
 
@@ -67,6 +73,18 @@ try {
             if ($ui.StatusCode -ne 200 -or $ui.Content -notmatch "OMNISCIENCE Command Centre") {
                 throw "Command centre HTTP proof failed."
             }
+            if ($Feature -eq "P0-SCENARIO-01") {
+                $scenarioApi = Invoke-WebRequest `
+                    -Uri "http://127.0.0.1:8765/v1/scenarios/valid" `
+                    -UseBasicParsing -TimeoutSec 5
+                if (
+                    $scenarioApi.StatusCode -ne 200 -or
+                    $scenarioApi.Content -notmatch '"contract_version":"scenario.v1"' -or
+                    $scenarioApi.Content -notmatch '"entity_family_count":12'
+                ) {
+                    throw "Scenario API HTTP proof failed."
+                }
+            }
         }
         Invoke-Gate "Browser state and interaction proof" {
             & corepack.cmd pnpm --filter "@omniscience/desktop" test:e2e
@@ -103,7 +121,20 @@ try {
     New-Item -ItemType Directory -Force -Path $artifactDir | Out-Null
     New-Item -ItemType Directory -Force -Path $screenshotArtifactDir | Out-Null
 
-    $states = @("live", "degraded", "stale", "loading", "error")
+    $states = if ($Feature -eq "P0-SCENARIO-01") {
+        @(
+            "valid",
+            "stale",
+            "duplicate",
+            "contradictory",
+            "denied",
+            "degraded",
+            "timeout",
+            "recovery"
+        )
+    } else {
+        @("live", "degraded", "stale", "loading", "error")
+    }
     $viewports = @("1280x720", "1440x900", "1920x1080")
     $screenshotNames = [System.Collections.Generic.List[string]]::new()
     foreach ($state in $states) {
@@ -111,34 +142,43 @@ try {
             $screenshotNames.Add("$state-$viewport.png")
         }
     }
-    $screenshotNames.Add("source-setup-1440x900.png")
+    if ($Feature -eq "P0-SHELL-01") {
+        $screenshotNames.Add("source-setup-1440x900.png")
+    }
 
     if (-not $SkipRuntime) {
         foreach ($screenshotName in $screenshotNames) {
-            $sourceScreenshot = Join-Path $playwrightDir $screenshotName
+            $sourceScreenshot = Join-Path $playwrightScreenshotDir $screenshotName
             if (-not (Test-Path -LiteralPath $sourceScreenshot)) {
                 throw "Expected screenshot is missing: $sourceScreenshot"
             }
             Copy-Item -LiteralPath $sourceScreenshot -Destination $screenshotArtifactDir -Force
         }
 
-        $testResultsSource = Join-Path $playwrightDir "test-results.xml"
-        if (-not (Test-Path -LiteralPath $testResultsSource)) {
-            throw "Playwright JUnit result is missing: $testResultsSource"
+        if (-not (Test-Path -LiteralPath $playwrightJunitPath)) {
+            throw "Playwright JUnit result is missing: $playwrightJunitPath"
         }
-        Copy-Item -LiteralPath $testResultsSource `
+        Copy-Item -LiteralPath $playwrightJunitPath `
             -Destination (Join-Path $artifactDir "test-results.xml") -Force
 
-        $traceSource = Join-Path $playwrightResultsDir `
+        $traceRelativePath = if ($Feature -eq "P0-SCENARIO-01") {
+            "phase0-scenarios-valid-fixture-is-safe-at-1440x900\trace.zip"
+        } else {
             "phase0-shell-live-state-is-safe-at-1440x900\trace.zip"
+        }
+        $traceSource = Join-Path $playwrightResultsDir $traceRelativePath
         if (-not (Test-Path -LiteralPath $traceSource)) {
             throw "Critical-journey trace is missing: $traceSource"
         }
         Copy-Item -LiteralPath $traceSource `
             -Destination (Join-Path $artifactDir "trace.zip") -Force
 
-        $apiResponse = Invoke-RestMethod `
-            -Uri "http://127.0.0.1:8765/v1/health" -TimeoutSec 5
+        $apiEndpoint = if ($Feature -eq "P0-SCENARIO-01") {
+            "http://127.0.0.1:8765/v1/scenarios/valid"
+        } else {
+            "http://127.0.0.1:8765/v1/health"
+        }
+        $apiResponse = Invoke-RestMethod -Uri $apiEndpoint -TimeoutSec 5
         $apiResponse | ConvertTo-Json -Depth 8 |
             Set-Content -LiteralPath (Join-Path $artifactDir "api-contract.json") `
                 -Encoding utf8
@@ -147,25 +187,40 @@ try {
             schema = "omniscience.audit-proof.v1"
             feature = $Feature
             events = @()
-            reason = "Phase 0 is an observation-only shell and emits no business audit event."
+            reason = if ($Feature -eq "P0-SCENARIO-01") {
+                "The fixture lab is read-only and cannot emit a business audit event."
+            } else {
+                "Phase 0 is an observation-only shell and emits no business audit event."
+            }
         } | ConvertTo-Json -Depth 5 |
             Set-Content -LiteralPath (Join-Path $artifactDir "audit-events.json") `
                 -Encoding utf8
 
+        $browserCaseCount = $states.Count * $viewports.Count
         @(
-            "Playwright assertions passed across 15 state/viewport cases."
+            "Playwright assertions passed across $browserCaseCount state/viewport cases."
             "Console errors: 0"
             "Page errors: 0"
             "Failed requests and HTTP responses >= 400: 0"
+            "Horizontal overflow cases: 0"
+            if ($Feature -eq "P0-SCENARIO-01") {
+                "Vertical overflow cases: 0"
+                "Scenario switch interaction: passed"
+            }
         ) | Set-Content -LiteralPath (Join-Path $artifactDir "console.log") `
             -Encoding utf8
 
+        $visualSummary = if ($Feature -eq "P0-SCENARIO-01") {
+            "Automated proof passed for all eight fixture states at 1280x720, 1440x900, and 1920x1080."
+        } else {
+            "Automated proof passed for all five states at 1280x720, 1440x900, and 1920x1080."
+        }
         @(
             "# $Feature Visual Review"
             ""
             "Status: pending final human-style screenshot inspection"
             ""
-            "Automated proof passed for all five states at 1280x720, 1440x900, and 1920x1080."
+            $visualSummary
             "Review the copied screenshots before changing the manifest status to verified."
         ) | Set-Content -LiteralPath (Join-Path $artifactDir "visual-review.md") `
             -Encoding utf8
@@ -176,17 +231,34 @@ try {
     )
     $apiChecks = @()
     if (-not $SkipRuntime) {
-        $apiChecks = @(
-            [pscustomobject]@{
-                endpoint = "GET /v1/health"
-                http_status = 200
-                service = $apiResponse.service
-                contract_version = $apiResponse.contract_version
-                runtime_status = $apiResponse.status
-                postgresql_status = $apiResponse.prerequisites.postgresql.status
-                data_connection_status = $apiResponse.data_connection.status
-            }
-        )
+        if ($Feature -eq "P0-SCENARIO-01") {
+            $apiChecks = @(
+                [pscustomobject]@{
+                    endpoint = "GET /v1/scenarios/valid"
+                    http_status = 200
+                    contract_version = $apiResponse.contract_version
+                    fixture_version = $apiResponse.fixture_version
+                    entity_family_count = $apiResponse.summary.entity_family_count
+                    record_count = $apiResponse.summary.record_count
+                    stored_at_utc = $apiResponse.clock.stored_at_utc
+                    displayed_at_local = $apiResponse.clock.displayed_at_local
+                    consequential_actions_enabled = `
+                        $apiResponse.consequential_actions_enabled
+                }
+            )
+        } else {
+            $apiChecks = @(
+                [pscustomobject]@{
+                    endpoint = "GET /v1/health"
+                    http_status = 200
+                    service = $apiResponse.service
+                    contract_version = $apiResponse.contract_version
+                    runtime_status = $apiResponse.status
+                    postgresql_status = $apiResponse.prerequisites.postgresql.status
+                    data_connection_status = $apiResponse.data_connection.status
+                }
+            )
+        }
     }
 
     [pscustomobject]@{
@@ -205,7 +277,11 @@ try {
         completed_at = [DateTimeOffset]::UtcNow.ToString("o")
         commands = $checks
         database_migration_version = "none_phase0"
-        fixtures = @("health.v1", "phase0-route-state-laboratory.v1")
+        fixtures = if ($Feature -eq "P0-SCENARIO-01") {
+            @("phase0-fixtures.v1", "scenario.v1")
+        } else {
+            @("health.v1", "phase0-route-state-laboratory.v1")
+        }
         roles = @("owner")
         states = if ($SkipRuntime) { @() } else { $states }
         viewports = if ($SkipRuntime) { @() } else { $viewports }

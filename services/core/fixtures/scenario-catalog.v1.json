@@ -1,0 +1,251 @@
+{
+  "schema": "omniscience.fixture-catalog.v1",
+  "fixture_version": "phase0-fixtures.v1",
+  "anchor_utc": "2026-07-29T12:00:00Z",
+  "entities": {
+    "users": [
+      {
+        "id": "fx-user-owner-alpha",
+        "label": "Owner Alpha",
+        "recorded_at_utc": "2026-07-29T12:00:00Z",
+        "attributes": {
+          "role_id": "fx-role-owner",
+          "active": true
+        }
+      },
+      {
+        "id": "fx-user-operator-beta",
+        "label": "Operator Beta",
+        "recorded_at_utc": "2026-07-29T12:00:00Z",
+        "attributes": {
+          "role_id": "fx-role-operator",
+          "active": true
+        }
+      }
+    ],
+    "roles": [
+      {
+        "id": "fx-role-owner",
+        "label": "Fixture owner",
+        "recorded_at_utc": "2026-07-29T12:00:00Z",
+        "attributes": {
+          "scope": "observe_fixture",
+          "external_action": false
+        }
+      },
+      {
+        "id": "fx-role-operator",
+        "label": "Fixture operator",
+        "recorded_at_utc": "2026-07-29T12:00:00Z",
+        "attributes": {
+          "scope": "observe_fixture",
+          "external_action": false
+        }
+      }
+    ],
+    "financial_imports": [
+      {
+        "id": "fx-finance-batch-001",
+        "label": "Sample ledger batch 001",
+        "recorded_at_utc": "2026-07-29T09:00:00Z",
+        "attributes": {
+          "currency": "PKR",
+          "row_count": 4,
+          "total_minor": 128450000,
+          "read_only": true
+        }
+      }
+    ],
+    "customers": [
+      {
+        "id": "fx-customer-k017",
+        "label": "Customer K-017",
+        "recorded_at_utc": "2026-07-29T09:15:00Z",
+        "attributes": {
+          "segment": "returning",
+          "contact_redacted": true
+        }
+      }
+    ],
+    "visits": [
+      {
+        "id": "fx-visit-v031",
+        "label": "Visit V-031",
+        "recorded_at_utc": "2026-07-29T09:30:00Z",
+        "attributes": {
+          "customer_id": "fx-customer-k017",
+          "channel": "sample_store"
+        }
+      }
+    ],
+    "products": [
+      {
+        "id": "fx-product-p014",
+        "label": "Demo handset P-014",
+        "recorded_at_utc": "2026-07-29T09:45:00Z",
+        "attributes": {
+          "category": "handset",
+          "inventory_units": 7
+        }
+      }
+    ],
+    "promises": [
+      {
+        "id": "fx-promise-r008",
+        "label": "Sample follow-up promise R-008",
+        "recorded_at_utc": "2026-07-29T10:00:00Z",
+        "attributes": {
+          "due_at_utc": "2026-07-30T05:00:00Z",
+          "status": "open"
+        }
+      }
+    ],
+    "tasks": [
+      {
+        "id": "fx-task-t022",
+        "label": "Review sample import",
+        "recorded_at_utc": "2026-07-29T10:15:00Z",
+        "attributes": {
+          "assignee_id": "fx-user-operator-beta",
+          "priority": "normal"
+        }
+      }
+    ],
+    "evidence": [
+      {
+        "id": "fx-evidence-e019",
+        "label": "Redacted sample receipt hash",
+        "recorded_at_utc": "2026-07-29T10:30:00Z",
+        "attributes": {
+          "sha256": "fixture-only-e019",
+          "contains_personal_data": false
+        }
+      }
+    ],
+    "meetings": [
+      {
+        "id": "fx-meeting-m006",
+        "label": "Consented lab meeting M-006",
+        "recorded_at_utc": "2026-07-29T10:45:00Z",
+        "attributes": {
+          "consent": "fixture",
+          "transcript_redacted": true
+        }
+      }
+    ],
+    "provider_responses": [
+      {
+        "id": "fx-provider-q011",
+        "label": "Simulated provider response Q-011",
+        "recorded_at_utc": "2026-07-29T11:00:00Z",
+        "attributes": {
+          "provider": "local_simulator",
+          "http_status": 200,
+          "external_call": false
+        }
+      }
+    ],
+    "model_outcomes": [
+      {
+        "id": "fx-model-o004",
+        "label": "Local model sample outcome O-004",
+        "recorded_at_utc": "2026-07-29T11:15:00Z",
+        "attributes": {
+          "lane": "fixture",
+          "confidence_basis": "deterministic_stub",
+          "cloud_inference": false
+        }
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "valid",
+      "label": "Valid",
+      "status": "ready",
+      "headline": "Fixture inputs agree",
+      "detail": "All deterministic fixture records pass their contract checks.",
+      "signals": [
+        "Required fields are present.",
+        "Record totals reconcile with the fixture catalog."
+      ]
+    },
+    {
+      "id": "stale",
+      "label": "Stale",
+      "status": "stale",
+      "headline": "Fixture source is stale",
+      "detail": "The simulated source is outside its freshness window.",
+      "signals": [
+        "Freshness gate failed.",
+        "Consequential actions remain locked."
+      ]
+    },
+    {
+      "id": "duplicate",
+      "label": "Duplicate",
+      "status": "review",
+      "headline": "Duplicate record detected",
+      "detail": "Two simulated imports claim the same durable source identity.",
+      "signals": [
+        "Duplicate key fx-finance-batch-001 was injected.",
+        "The duplicate is quarantined for review."
+      ]
+    },
+    {
+      "id": "contradictory",
+      "label": "Contradictory",
+      "status": "blocked",
+      "headline": "Sources contradict each other",
+      "detail": "The fixture ledger and evidence record disagree on the same amount.",
+      "signals": [
+        "Contradiction requires human review.",
+        "No source value is silently preferred."
+      ]
+    },
+    {
+      "id": "denied",
+      "label": "Denied",
+      "status": "denied",
+      "headline": "Access correctly denied",
+      "detail": "The simulated operator lacks authority for the requested evidence.",
+      "signals": [
+        "Observe permission was denied.",
+        "No protected fixture content was returned."
+      ]
+    },
+    {
+      "id": "degraded",
+      "label": "Degraded",
+      "status": "degraded",
+      "headline": "Provider path is degraded",
+      "detail": "The local simulator returned partial, explicitly incomplete data.",
+      "signals": [
+        "Partial provider response is visible.",
+        "Incomplete data cannot authorize action."
+      ]
+    },
+    {
+      "id": "timeout",
+      "label": "Timeout",
+      "status": "timeout",
+      "headline": "Provider response timed out",
+      "detail": "The simulated provider exceeded its bounded response window.",
+      "signals": [
+        "Timeout was recorded deterministically.",
+        "No retry or external call was started."
+      ]
+    },
+    {
+      "id": "recovery",
+      "label": "Recovery",
+      "status": "recovered",
+      "headline": "Provider path recovered",
+      "detail": "The simulator returned a complete response after the timeout fixture.",
+      "signals": [
+        "Recovery follows the recorded timeout.",
+        "Fixture controls remain locked after recovery."
+      ]
+    }
+  ]
+}
