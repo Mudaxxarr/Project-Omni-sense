@@ -7,7 +7,7 @@
     "local_only":  true,
     "cloud_inference_enabled":  false,
     "timezone":  "Asia/Karachi",
-    "checked_at":  "2026-07-30T12:41:51.001338Z",
+    "checked_at":  "2026-07-30T13:15:45.577520Z",
     "prerequisites":  {
                           "core_api":  {
                                            "status":  "ready",

@@ -1,63 +1,63 @@
 ﻿{
     "schema":  "omniscience.verification.v1",
     "feature_id":  "P0-SHELL-01",
-    "source_commit":  "42cad549ecb91b7583c1e2b2d63340fb1c2fe1cf",
+    "source_commit":  "4b8a7f8b34a1b8c34c1de59c5df0e38fed06500f",
     "source_worktree_dirty":  false,
-    "feature_contract_sha256":  "023b2d9a7be44535bbebcc7e1d372bdbe6c30d5c07e97cce0515002dbccbb28f",
-    "status":  "automated_gates_passed",
-    "visual_review_status":  "pending_final_inspection",
-    "started_at":  "2026-07-30T12:41:00.5413227+00:00",
-    "completed_at":  "2026-07-30T12:41:51.0326066+00:00",
+    "feature_contract_sha256":  "9efdc56b6092d42ba61394f9aff023a5d26bfc74616e93d0450c7db276b0f90d",
+    "status":  "verified",
+    "visual_review_status":  "passed",
+    "started_at":  "2026-07-30T13:14:59.4795821+00:00",
+    "completed_at":  "2026-07-30T13:15:45.5996832+00:00",
     "commands":  [
                      {
                          "name":  "local doctor",
                          "status":  "passed",
-                         "duration_ms":  715
+                         "duration_ms":  727
                      },
                      {
                          "name":  "Python lint",
                          "status":  "passed",
-                         "duration_ms":  58
+                         "duration_ms":  69
                      },
                      {
                          "name":  "Python types",
                          "status":  "passed",
-                         "duration_ms":  273
+                         "duration_ms":  359
                      },
                      {
                          "name":  "Backend tests",
                          "status":  "passed",
-                         "duration_ms":  964
+                         "duration_ms":  902
                      },
                      {
                          "name":  "Workspace lint",
                          "status":  "passed",
-                         "duration_ms":  2130
+                         "duration_ms":  2109
                      },
                      {
                          "name":  "Workspace types",
                          "status":  "passed",
-                         "duration_ms":  4215
+                         "duration_ms":  4315
                      },
                      {
                          "name":  "Workspace tests",
                          "status":  "passed",
-                         "duration_ms":  7052
+                         "duration_ms":  5744
                      },
                      {
                          "name":  "Production build",
                          "status":  "passed",
-                         "duration_ms":  7220
+                         "duration_ms":  7359
                      },
                      {
                          "name":  "Runtime HTTP proof",
                          "status":  "passed",
-                         "duration_ms":  1111
+                         "duration_ms":  1024
                      },
                      {
                          "name":  "Browser state and interaction proof",
                          "status":  "passed",
-                         "duration_ms":  26397
+                         "duration_ms":  23228
                      }
                  ],
     "database_migration_version":  "none_phase0",

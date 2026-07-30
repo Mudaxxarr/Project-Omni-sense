@@ -1,104 +1,104 @@
-<testsuites id="" name="" tests="15" failures="0" skipped="0" errors="0" time="25.555076">
-<testsuite name="phase0-shell.spec.ts" timestamp="2026-07-30T12:41:25.227Z" hostname="" tests="15" failures="0" skipped="0" time="22.897" errors="0">
-<testcase name="live state is safe at 1280x720" classname="phase0-shell.spec.ts" time="1.208">
+<testsuites id="" name="" tests="15" failures="0" skipped="0" errors="0" time="22.386828">
+<testsuite name="phase0-shell.spec.ts" timestamp="2026-07-30T13:15:23.048Z" hostname="" tests="15" failures="0" skipped="0" time="20.756" errors="0">
+<testcase name="live state is safe at 1280x720" classname="phase0-shell.spec.ts" time="1.238">
 <system-out>
 <![CDATA[
 [[ATTACHMENT|test-results\phase0-shell-live-state-is-safe-at-1280x720\trace.zip]]
 ]]>
 </system-out>
 </testcase>
-<testcase name="live state is safe at 1440x900" classname="phase0-shell.spec.ts" time="1.964">
+<testcase name="live state is safe at 1440x900" classname="phase0-shell.spec.ts" time="1.834">
 <system-out>
 <![CDATA[
 [[ATTACHMENT|test-results\phase0-shell-live-state-is-safe-at-1440x900\trace.zip]]
 ]]>
 </system-out>
 </testcase>
-<testcase name="live state is safe at 1920x1080" classname="phase0-shell.spec.ts" time="1.355">
+<testcase name="live state is safe at 1920x1080" classname="phase0-shell.spec.ts" time="1.209">
 <system-out>
 <![CDATA[
 [[ATTACHMENT|test-results\phase0-shell-live-state-is-safe-at-1920x1080\trace.zip]]
 ]]>
 </system-out>
 </testcase>
-<testcase name="degraded state is safe at 1280x720" classname="phase0-shell.spec.ts" time="1.284">
+<testcase name="degraded state is safe at 1280x720" classname="phase0-shell.spec.ts" time="1.158">
 <system-out>
 <![CDATA[
 [[ATTACHMENT|test-results\phase0-shell-degraded-state-is-safe-at-1280x720\trace.zip]]
 ]]>
 </system-out>
 </testcase>
-<testcase name="degraded state is safe at 1440x900" classname="phase0-shell.spec.ts" time="2.291">
+<testcase name="degraded state is safe at 1440x900" classname="phase0-shell.spec.ts" time="1.884">
 <system-out>
 <![CDATA[
 [[ATTACHMENT|test-results\phase0-shell-degraded-state-is-safe-at-1440x900\trace.zip]]
 ]]>
 </system-out>
 </testcase>
-<testcase name="degraded state is safe at 1920x1080" classname="phase0-shell.spec.ts" time="1.373">
+<testcase name="degraded state is safe at 1920x1080" classname="phase0-shell.spec.ts" time="1.215">
 <system-out>
 <![CDATA[
 [[ATTACHMENT|test-results\phase0-shell-degraded-state-is-safe-at-1920x1080\trace.zip]]
 ]]>
 </system-out>
 </testcase>
-<testcase name="stale state is safe at 1280x720" classname="phase0-shell.spec.ts" time="1.254">
+<testcase name="stale state is safe at 1280x720" classname="phase0-shell.spec.ts" time="1.175">
 <system-out>
 <![CDATA[
 [[ATTACHMENT|test-results\phase0-shell-stale-state-is-safe-at-1280x720\trace.zip]]
 ]]>
 </system-out>
 </testcase>
-<testcase name="stale state is safe at 1440x900" classname="phase0-shell.spec.ts" time="1.903">
+<testcase name="stale state is safe at 1440x900" classname="phase0-shell.spec.ts" time="1.746">
 <system-out>
 <![CDATA[
 [[ATTACHMENT|test-results\phase0-shell-stale-state-is-safe-at-1440x900\trace.zip]]
 ]]>
 </system-out>
 </testcase>
-<testcase name="stale state is safe at 1920x1080" classname="phase0-shell.spec.ts" time="1.323">
+<testcase name="stale state is safe at 1920x1080" classname="phase0-shell.spec.ts" time="1.276">
 <system-out>
 <![CDATA[
 [[ATTACHMENT|test-results\phase0-shell-stale-state-is-safe-at-1920x1080\trace.zip]]
 ]]>
 </system-out>
 </testcase>
-<testcase name="loading state is safe at 1280x720" classname="phase0-shell.spec.ts" time="1.238">
+<testcase name="loading state is safe at 1280x720" classname="phase0-shell.spec.ts" time="1.153">
 <system-out>
 <![CDATA[
 [[ATTACHMENT|test-results\phase0-shell-loading-state-is-safe-at-1280x720\trace.zip]]
 ]]>
 </system-out>
 </testcase>
-<testcase name="loading state is safe at 1440x900" classname="phase0-shell.spec.ts" time="1.859">
+<testcase name="loading state is safe at 1440x900" classname="phase0-shell.spec.ts" time="1.663">
 <system-out>
 <![CDATA[
 [[ATTACHMENT|test-results\phase0-shell-loading-state-is-safe-at-1440x900\trace.zip]]
 ]]>
 </system-out>
 </testcase>
-<testcase name="loading state is safe at 1920x1080" classname="phase0-shell.spec.ts" time="1.313">
+<testcase name="loading state is safe at 1920x1080" classname="phase0-shell.spec.ts" time="1.149">
 <system-out>
 <![CDATA[
 [[ATTACHMENT|test-results\phase0-shell-loading-state-is-safe-at-1920x1080\trace.zip]]
 ]]>
 </system-out>
 </testcase>
-<testcase name="error state is safe at 1280x720" classname="phase0-shell.spec.ts" time="1.252">
+<testcase name="error state is safe at 1280x720" classname="phase0-shell.spec.ts" time="1.147">
 <system-out>
 <![CDATA[
 [[ATTACHMENT|test-results\phase0-shell-error-state-is-safe-at-1280x720\trace.zip]]
 ]]>
 </system-out>
 </testcase>
-<testcase name="error state is safe at 1440x900" classname="phase0-shell.spec.ts" time="1.982">
+<testcase name="error state is safe at 1440x900" classname="phase0-shell.spec.ts" time="1.721">
 <system-out>
 <![CDATA[
 [[ATTACHMENT|test-results\phase0-shell-error-state-is-safe-at-1440x900\trace.zip]]
 ]]>
 </system-out>
 </testcase>
-<testcase name="error state is safe at 1920x1080" classname="phase0-shell.spec.ts" time="1.298">
+<testcase name="error state is safe at 1920x1080" classname="phase0-shell.spec.ts" time="1.188">
 <system-out>
 <![CDATA[
 [[ATTACHMENT|test-results\phase0-shell-error-state-is-safe-at-1920x1080\trace.zip]]
