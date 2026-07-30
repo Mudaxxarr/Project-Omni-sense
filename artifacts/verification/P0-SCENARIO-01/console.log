@@ -1,0 +1,7 @@
+﻿Playwright assertions passed across 24 state/viewport cases.
+Console errors: 0
+Page errors: 0
+Failed requests and HTTP responses >= 400: 0
+Horizontal overflow cases: 0
+Vertical overflow cases: 0
+Scenario switch interaction: passed

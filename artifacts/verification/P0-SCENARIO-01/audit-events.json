@@ -1,0 +1,8 @@
+﻿{
+    "schema":  "omniscience.audit-proof.v1",
+    "feature":  "P0-SCENARIO-01",
+    "events":  [
+
+               ],
+    "reason":  "The fixture lab is read-only and cannot emit a business audit event."
+}

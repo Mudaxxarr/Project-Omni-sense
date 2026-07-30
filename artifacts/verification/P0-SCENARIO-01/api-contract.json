@@ -1,0 +1,228 @@
+﻿{
+    "contract_version":  "scenario.v1",
+    "fixture_version":  "phase0-fixtures.v1",
+    "fixture_mode":  true,
+    "anonymized":  true,
+    "local_only":  true,
+    "consequential_actions_enabled":  false,
+    "action_lock_reason":  "Fixture-only data cannot authorize real actions.",
+    "scenario":  {
+                     "id":  "valid",
+                     "label":  "Valid",
+                     "status":  "ready",
+                     "headline":  "Fixture inputs agree",
+                     "detail":  "All deterministic fixture records pass their contract checks."
+                 },
+    "available_scenarios":  [
+                                {
+                                    "id":  "valid",
+                                    "label":  "Valid",
+                                    "status":  "ready"
+                                },
+                                {
+                                    "id":  "stale",
+                                    "label":  "Stale",
+                                    "status":  "stale"
+                                },
+                                {
+                                    "id":  "duplicate",
+                                    "label":  "Duplicate",
+                                    "status":  "review"
+                                },
+                                {
+                                    "id":  "contradictory",
+                                    "label":  "Contradictory",
+                                    "status":  "blocked"
+                                },
+                                {
+                                    "id":  "denied",
+                                    "label":  "Denied",
+                                    "status":  "denied"
+                                },
+                                {
+                                    "id":  "degraded",
+                                    "label":  "Degraded",
+                                    "status":  "degraded"
+                                },
+                                {
+                                    "id":  "timeout",
+                                    "label":  "Timeout",
+                                    "status":  "timeout"
+                                },
+                                {
+                                    "id":  "recovery",
+                                    "label":  "Recovery",
+                                    "status":  "recovered"
+                                }
+                            ],
+    "clock":  {
+                  "deterministic":  true,
+                  "stored_at_utc":  "2026-07-29T12:00:00Z",
+                  "displayed_at_local":  "2026-07-29T17:00:00+05:00",
+                  "timezone":  "Asia/Karachi"
+              },
+    "summary":  {
+                    "entity_family_count":  12,
+                    "record_count":  14
+                },
+    "entities":  {
+                     "users":  [
+                                   {
+                                       "id":  "fx-user-owner-alpha",
+                                       "label":  "Owner Alpha",
+                                       "recorded_at_utc":  "2026-07-29T12:00:00Z",
+                                       "attributes":  {
+                                                          "role_id":  "fx-role-owner",
+                                                          "active":  true
+                                                      }
+                                   },
+                                   {
+                                       "id":  "fx-user-operator-beta",
+                                       "label":  "Operator Beta",
+                                       "recorded_at_utc":  "2026-07-29T12:00:00Z",
+                                       "attributes":  {
+                                                          "role_id":  "fx-role-operator",
+                                                          "active":  true
+                                                      }
+                                   }
+                               ],
+                     "roles":  [
+                                   {
+                                       "id":  "fx-role-owner",
+                                       "label":  "Fixture owner",
+                                       "recorded_at_utc":  "2026-07-29T12:00:00Z",
+                                       "attributes":  {
+                                                          "scope":  "observe_fixture",
+                                                          "external_action":  false
+                                                      }
+                                   },
+                                   {
+                                       "id":  "fx-role-operator",
+                                       "label":  "Fixture operator",
+                                       "recorded_at_utc":  "2026-07-29T12:00:00Z",
+                                       "attributes":  {
+                                                          "scope":  "observe_fixture",
+                                                          "external_action":  false
+                                                      }
+                                   }
+                               ],
+                     "financial_imports":  [
+                                               {
+                                                   "id":  "fx-finance-batch-001",
+                                                   "label":  "Sample ledger batch 001",
+                                                   "recorded_at_utc":  "2026-07-29T09:00:00Z",
+                                                   "attributes":  {
+                                                                      "currency":  "PKR",
+                                                                      "row_count":  4,
+                                                                      "total_minor":  128450000,
+                                                                      "read_only":  true
+                                                                  }
+                                               }
+                                           ],
+                     "customers":  [
+                                       {
+                                           "id":  "fx-customer-k017",
+                                           "label":  "Customer K-017",
+                                           "recorded_at_utc":  "2026-07-29T09:15:00Z",
+                                           "attributes":  {
+                                                              "segment":  "returning",
+                                                              "contact_redacted":  true
+                                                          }
+                                       }
+                                   ],
+                     "visits":  [
+                                    {
+                                        "id":  "fx-visit-v031",
+                                        "label":  "Visit V-031",
+                                        "recorded_at_utc":  "2026-07-29T09:30:00Z",
+                                        "attributes":  {
+                                                           "customer_id":  "fx-customer-k017",
+                                                           "channel":  "sample_store"
+                                                       }
+                                    }
+                                ],
+                     "products":  [
+                                      {
+                                          "id":  "fx-product-p014",
+                                          "label":  "Demo handset P-014",
+                                          "recorded_at_utc":  "2026-07-29T09:45:00Z",
+                                          "attributes":  {
+                                                             "category":  "handset",
+                                                             "inventory_units":  7
+                                                         }
+                                      }
+                                  ],
+                     "promises":  [
+                                      {
+                                          "id":  "fx-promise-r008",
+                                          "label":  "Sample follow-up promise R-008",
+                                          "recorded_at_utc":  "2026-07-29T10:00:00Z",
+                                          "attributes":  {
+                                                             "due_at_utc":  "2026-07-30T05:00:00Z",
+                                                             "status":  "open"
+                                                         }
+                                      }
+                                  ],
+                     "tasks":  [
+                                   {
+                                       "id":  "fx-task-t022",
+                                       "label":  "Review sample import",
+                                       "recorded_at_utc":  "2026-07-29T10:15:00Z",
+                                       "attributes":  {
+                                                          "assignee_id":  "fx-user-operator-beta",
+                                                          "priority":  "normal"
+                                                      }
+                                   }
+                               ],
+                     "evidence":  [
+                                      {
+                                          "id":  "fx-evidence-e019",
+                                          "label":  "Redacted sample receipt hash",
+                                          "recorded_at_utc":  "2026-07-29T10:30:00Z",
+                                          "attributes":  {
+                                                             "sha256":  "fixture-only-e019",
+                                                             "contains_personal_data":  false
+                                                         }
+                                      }
+                                  ],
+                     "meetings":  [
+                                      {
+                                          "id":  "fx-meeting-m006",
+                                          "label":  "Consented lab meeting M-006",
+                                          "recorded_at_utc":  "2026-07-29T10:45:00Z",
+                                          "attributes":  {
+                                                             "consent":  "fixture",
+                                                             "transcript_redacted":  true
+                                                         }
+                                      }
+                                  ],
+                     "provider_responses":  [
+                                                {
+                                                    "id":  "fx-provider-q011",
+                                                    "label":  "Simulated provider response Q-011",
+                                                    "recorded_at_utc":  "2026-07-29T11:00:00Z",
+                                                    "attributes":  {
+                                                                       "provider":  "local_simulator",
+                                                                       "http_status":  200,
+                                                                       "external_call":  false
+                                                                   }
+                                                }
+                                            ],
+                     "model_outcomes":  [
+                                            {
+                                                "id":  "fx-model-o004",
+                                                "label":  "Local model sample outcome O-004",
+                                                "recorded_at_utc":  "2026-07-29T11:15:00Z",
+                                                "attributes":  {
+                                                                   "lane":  "fixture",
+                                                                   "confidence_basis":  "deterministic_stub",
+                                                                   "cloud_inference":  false
+                                                               }
+                                            }
+                                        ]
+                 },
+    "signals":  [
+                    "Required fields are present.",
+                    "Record totals reconcile with the fixture catalog."
+                ]
+}

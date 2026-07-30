@@ -11,13 +11,14 @@ Phase 0 is in progress. The repository is establishing:
 - a local FastAPI health service;
 - a React/Vite Command Centre shell;
 - an Electron wrapper;
-- deterministic fixtures and visual proof.
+- a deterministic anonymized Scenario Lab;
+- exact-viewport visual proof.
 
 No real accounting source, provider credential, external action, microphone, camera, or AI model is connected.
 
-`P0-SHELL-01` is mechanically and visually verified against the native local
-stack. The Phase 0 release tag remains blocked on CI parity, the remaining
-scenario factory, and the owner's one-time visual North Star approval.
+`P0-SHELL-01` and fixture-only `P0-SCENARIO-01` are mechanically and visually
+verified against the native local stack. The Phase 0 release tag remains blocked
+on CI parity and the owner's one-time visual North Star approval.
 
 ## Intended local commands
 
@@ -26,7 +27,8 @@ corepack.cmd pnpm install
 uv sync
 .\scripts\doctor.ps1
 .\scripts\start-local.ps1
-.\scripts\verify-feature.ps1 -FeatureId P0-SHELL-01
+.\scripts\seed-scenario.ps1 -Scenario recovery
+.\scripts\verify-feature.ps1 -Feature P0-SCENARIO-01
 .\scripts\stop-local.ps1
 ```
 

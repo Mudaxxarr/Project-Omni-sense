@@ -1,0 +1,134 @@
+﻿{
+    "schema":  "omniscience.verification.v1",
+    "feature_id":  "P0-SCENARIO-01",
+    "source_commit":  "38533aa0aafecb7deccc317868b0f36262ccd992",
+    "source_worktree_dirty":  false,
+    "feature_contract_sha256":  "7135d22b02d1738239428616f66df0393264e9950c999f2c0a44d3fd40a23a73",
+    "status":  "verified",
+    "visual_review_status":  "passed",
+    "started_at":  "2026-07-30T14:06:32.0418905+00:00",
+    "completed_at":  "2026-07-30T14:07:31.0286823+00:00",
+    "commands":  [
+                     {
+                         "name":  "local doctor",
+                         "status":  "passed",
+                         "duration_ms":  650
+                     },
+                     {
+                         "name":  "Python lint",
+                         "status":  "passed",
+                         "duration_ms":  54
+                     },
+                     {
+                         "name":  "Python types",
+                         "status":  "passed",
+                         "duration_ms":  258
+                     },
+                     {
+                         "name":  "Backend tests",
+                         "status":  "passed",
+                         "duration_ms":  821
+                     },
+                     {
+                         "name":  "Workspace lint",
+                         "status":  "passed",
+                         "duration_ms":  1987
+                     },
+                     {
+                         "name":  "Workspace types",
+                         "status":  "passed",
+                         "duration_ms":  3770
+                     },
+                     {
+                         "name":  "Workspace tests",
+                         "status":  "passed",
+                         "duration_ms":  5449
+                     },
+                     {
+                         "name":  "Production build",
+                         "status":  "passed",
+                         "duration_ms":  6827
+                     },
+                     {
+                         "name":  "Runtime HTTP proof",
+                         "status":  "passed",
+                         "duration_ms":  1031
+                     },
+                     {
+                         "name":  "Browser state and interaction proof",
+                         "status":  "passed",
+                         "duration_ms":  37921
+                     }
+                 ],
+    "database_migration_version":  "none_phase0",
+    "fixtures":  [
+                     "phase0-fixtures.v1",
+                     "scenario.v1"
+                 ],
+    "roles":  [
+                  "owner"
+              ],
+    "states":  [
+                   "valid",
+                   "stale",
+                   "duplicate",
+                   "contradictory",
+                   "denied",
+                   "degraded",
+                   "timeout",
+                   "recovery"
+               ],
+    "viewports":  [
+                      "1280x720",
+                      "1440x900",
+                      "1920x1080"
+                  ],
+    "screenshots":  [
+                        "screenshots/valid-1280x720.png",
+                        "screenshots/valid-1440x900.png",
+                        "screenshots/valid-1920x1080.png",
+                        "screenshots/stale-1280x720.png",
+                        "screenshots/stale-1440x900.png",
+                        "screenshots/stale-1920x1080.png",
+                        "screenshots/duplicate-1280x720.png",
+                        "screenshots/duplicate-1440x900.png",
+                        "screenshots/duplicate-1920x1080.png",
+                        "screenshots/contradictory-1280x720.png",
+                        "screenshots/contradictory-1440x900.png",
+                        "screenshots/contradictory-1920x1080.png",
+                        "screenshots/denied-1280x720.png",
+                        "screenshots/denied-1440x900.png",
+                        "screenshots/denied-1920x1080.png",
+                        "screenshots/degraded-1280x720.png",
+                        "screenshots/degraded-1440x900.png",
+                        "screenshots/degraded-1920x1080.png",
+                        "screenshots/timeout-1280x720.png",
+                        "screenshots/timeout-1440x900.png",
+                        "screenshots/timeout-1920x1080.png",
+                        "screenshots/recovery-1280x720.png",
+                        "screenshots/recovery-1440x900.png",
+                        "screenshots/recovery-1920x1080.png"
+                    ],
+    "api_checks":  [
+                       {
+                           "endpoint":  "GET /v1/scenarios/valid",
+                           "http_status":  200,
+                           "contract_version":  "scenario.v1",
+                           "fixture_version":  "phase0-fixtures.v1",
+                           "entity_family_count":  12,
+                           "record_count":  14,
+                           "stored_at_utc":  "2026-07-29T12:00:00Z",
+                           "displayed_at_local":  "2026-07-29T17:00:00+05:00",
+                           "consequential_actions_enabled":  false
+                       }
+                   ],
+    "known_limitations":  [
+                              "No operational accounting or POS source is connected.",
+                              "Evidence vault, audit chain, retention worker, and restore proof begin in Phase 1.",
+                              "Owner visual North Star approval is still required for the Phase 0 exit tag."
+                          ],
+    "verifier":  {
+                     "identity":  "Codex Founder Mode",
+                     "browser_tool":  "Playwright 1.62.0"
+                 }
+}
