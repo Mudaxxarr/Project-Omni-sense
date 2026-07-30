@@ -64,6 +64,13 @@ try {
 
     if (-not $SkipRuntime) {
         Invoke-Gate "Runtime HTTP proof" {
+            $runtimeRecord = Join-Path $repoRoot ".runtime\processes.json"
+            if (Test-Path -LiteralPath $runtimeRecord) {
+                & (Join-Path $PSScriptRoot "stop-local.ps1") -Quiet
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Unable to stop the existing verified local stack."
+                }
+            }
             & (Join-Path $PSScriptRoot "start-local.ps1") -SkipDependencyCheck
             $api = Invoke-WebRequest -Uri "http://127.0.0.1:8765/v1/health" -UseBasicParsing -TimeoutSec 5
             $ui = Invoke-WebRequest -Uri "http://127.0.0.1:4173" -UseBasicParsing -TimeoutSec 5
