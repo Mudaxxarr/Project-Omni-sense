@@ -1,0 +1,1 @@
+"""OMNISCIENCE core service."""

@@ -1,0 +1,41 @@
+﻿{
+    "contract_version":  "health.v1",
+    "service":  "omniscience-core",
+    "version":  "0.0.1",
+    "mode":  "local",
+    "status":  "healthy",
+    "local_only":  true,
+    "cloud_inference_enabled":  false,
+    "timezone":  "Asia/Karachi",
+    "checked_at":  "2026-07-30T12:30:34.311698Z",
+    "prerequisites":  {
+                          "core_api":  {
+                                           "status":  "ready",
+                                           "detail":  "Local core API is responding."
+                                       },
+                          "postgresql":  {
+                                             "status":  "ready",
+                                             "detail":  "Native PostgreSQL 16 is accepting local connections."
+                                         },
+                          "evidence_vault":  {
+                                                 "status":  "planned",
+                                                 "detail":  "Evidence storage is scheduled for Phase 1."
+                                             },
+                          "audit_chain":  {
+                                              "status":  "planned",
+                                              "detail":  "Tamper-evident audit chaining is scheduled for Phase 1."
+                                          },
+                          "retention_worker":  {
+                                                   "status":  "planned",
+                                                   "detail":  "Retention enforcement is scheduled for Phase 1."
+                                               },
+                          "backup_restore":  {
+                                                 "status":  "planned",
+                                                 "detail":  "Backup and restore proof is scheduled for Phase 1."
+                                             }
+                      },
+    "data_connection":  {
+                            "status":  "not_connected",
+                            "detail":  "No operational source is connected."
+                        }
+}

@@ -1,0 +1,8 @@
+﻿{
+    "schema":  "omniscience.audit-proof.v1",
+    "feature":  "P0-SHELL-01",
+    "events":  [
+
+               ],
+    "reason":  "Phase 0 is an observation-only shell and emits no business audit event."
+}

@@ -1,0 +1,38 @@
+id: P0-SHELL-01
+title: Launch and verify the local Command Centre shell
+status: in_progress
+source_requirements:
+  - Phase 0 Founder Control Plane
+  - Phase 1 visual shell precursor
+roles:
+  - owner
+input_sources:
+  - core_health_v1
+authority:
+  observe:
+    - owner
+  change: []
+  external_action: none
+api_contracts:
+  - GET /v1/health
+visible_outcomes:
+  - NOW, THINK, PEOPLE, and MEMORY navigation
+  - local-only status
+  - API and prerequisite health
+  - explicit data-not-connected state
+required_states:
+  - loading
+  - healthy
+  - degraded
+  - stale
+  - error
+forbidden_outcomes:
+  - external provider action
+  - hidden cloud inference
+  - false database-ready claim
+proof_scenarios:
+  - healthy local API
+  - backend unavailable
+  - manual degraded-state preview
+rollback: Remove the shell route and retain the health API contract.
+

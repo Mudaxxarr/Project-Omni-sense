@@ -1,0 +1,16 @@
+{
+  "feature_id": "P0-EXAMPLE-01",
+  "source_commit": null,
+  "feature_contract_sha256": null,
+  "status": "not_run",
+  "commands": [],
+  "fixtures": [],
+  "roles": [],
+  "states": [],
+  "viewports": [],
+  "screenshots": [],
+  "api_checks": [],
+  "known_limitations": [],
+  "verified_at": null
+}
+

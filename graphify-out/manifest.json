@@ -1,0 +1,52 @@
+{
+  "01-foundation-trust-kernel.md": {
+    "mtime": 1785322706.6153345,
+    "ast_hash": "1da65a42e95b3e3ee4323296f150d293",
+    "semantic_hash": "1da65a42e95b3e3ee4323296f150d293"
+  },
+  "02-owner-now-financial-execution.md": {
+    "mtime": 1785322707.6734848,
+    "ast_hash": "5aff3969633a8aacf365c4c88397dfc3",
+    "semantic_hash": "5aff3969633a8aacf365c4c88397dfc3"
+  },
+  "03-customer-growth-execution-os.md": {
+    "mtime": 1785322708.6097476,
+    "ast_hash": "09186f5613a84a6b900ee6431d408780",
+    "semantic_hash": "09186f5613a84a6b900ee6431d408780"
+  },
+  "04-ceo-cognitive-exoskeleton.md": {
+    "mtime": 1785322709.5903838,
+    "ast_hash": "54ac33bf4b2487a0609209ebd89abe3f",
+    "semantic_hash": "54ac33bf4b2487a0609209ebd89abe3f"
+  },
+  "05-office-intelligence-security-fusion.md": {
+    "mtime": 1785322710.6266983,
+    "ast_hash": "1cf63cfc179eb07d53be5c552153c1b2",
+    "semantic_hash": "1cf63cfc179eb07d53be5c552153c1b2"
+  },
+  "06-market-growth-approved-execution.md": {
+    "mtime": 1785322711.6404376,
+    "ast_hash": "19dbe74ab9fe54d93f556c14ccdb6210",
+    "semantic_hash": "19dbe74ab9fe54d93f556c14ccdb6210"
+  },
+  "07-prediction-learning-evolution.md": {
+    "mtime": 1785322712.6074936,
+    "ast_hash": "d4fb57f7e99aba8fd92ab999a21e70dc",
+    "semantic_hash": "d4fb57f7e99aba8fd92ab999a21e70dc"
+  },
+  "08-resilience-polish-scale.md": {
+    "mtime": 1785322713.6578157,
+    "ast_hash": "8109990fc1b366d847c93213d17be219",
+    "semantic_hash": "8109990fc1b366d847c93213d17be219"
+  },
+  "2026-07-29-local-cpu-runtime-design.md": {
+    "mtime": 1785321966.9157894,
+    "ast_hash": "8e442bc62d4eb30731119a1265ef9bb3",
+    "semantic_hash": "8e442bc62d4eb30731119a1265ef9bb3"
+  },
+  "PROJECT_OMNISCIENCE_MASTER_SPEC.md": {
+    "mtime": 1785322403.5834205,
+    "ast_hash": "6103ef09793ad55e9a8ef742cfd48d89",
+    "semantic_hash": "6103ef09793ad55e9a8ef742cfd48d89"
+  }
+}

@@ -1,0 +1,23 @@
+id: P0-EXAMPLE-01
+title: Replace with a user-visible outcome
+status: draft
+source_requirements: []
+roles: []
+input_sources: []
+authority:
+  observe: []
+  change: []
+  external_action: none
+api_contracts: []
+visible_outcomes: []
+required_states:
+  - loading
+  - empty
+  - healthy
+  - stale
+  - denied
+  - error
+forbidden_outcomes: []
+proof_scenarios: []
+rollback: ""
+

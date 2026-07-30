@@ -1,0 +1,39 @@
+# JavaScript
+node_modules/
+**/node_modules/
+**/dist/
+**/.vite/
+**/coverage/
+
+# Python
+.venv/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Local runtime
+.env
+.runtime/
+.tmp/
+*.log
+
+# Browser evidence stays local; manifests and reviews remain versionable
+output/playwright/
+**/output/playwright/
+artifacts/verification/**/screenshots/
+artifacts/verification/**/trace.zip
+artifacts/verification/**/console.log
+
+# OS and editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Graphify transient state
+graphify-out/cache/
+graphify-out/.graphify_python
+graphify-out/.graphify_root
+graphify-out/.vocab.txt

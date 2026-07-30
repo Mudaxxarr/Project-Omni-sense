@@ -1,0 +1,42 @@
+[project]
+name = "omniscience-core"
+version = "0.0.1"
+description = "Local-first OMNISCIENCE core service"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "fastapi>=0.116,<1",
+  "httpx>=0.28,<1",
+  "psutil>=7,<8",
+  "pydantic>=2.11,<3",
+  "pydantic-settings>=2.10,<3",
+  "uvicorn[standard]>=0.35,<1",
+]
+
+[dependency-groups]
+dev = [
+  "mypy>=1.17,<2",
+  "pytest>=8.4,<9",
+  "pytest-asyncio>=1.1,<2",
+  "ruff>=0.12,<1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["services/core/tests"]
+pythonpath = ["."]
+addopts = "-ra --strict-config --strict-markers"
+asyncio_mode = "auto"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["services.core.app"]
+
+[tool.uv]
+package = false

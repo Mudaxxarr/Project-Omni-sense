@@ -1,0 +1,20 @@
+{
+  "name": "omniscience",
+  "version": "0.0.1",
+  "private": true,
+  "packageManager": "pnpm@11.18.0",
+  "engines": {
+    "node": ">=22 <25"
+  },
+  "scripts": {
+    "dev": "corepack pnpm --filter @omniscience/desktop dev",
+    "build": "corepack pnpm -r build",
+    "lint": "corepack pnpm -r lint",
+    "typecheck": "corepack pnpm -r typecheck",
+    "test": "corepack pnpm -r test",
+    "doctor": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/doctor.ps1",
+    "start:local": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-local.ps1",
+    "stop:local": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/stop-local.ps1",
+    "verify": "corepack pnpm lint && corepack pnpm typecheck && corepack pnpm test && corepack pnpm build"
+  }
+}

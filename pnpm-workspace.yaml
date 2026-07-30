@@ -1,0 +1,8 @@
+packages:
+  - apps/*
+  - packages/*
+
+allowBuilds:
+  "@tailwindcss/oxide": true
+  electron: true
+  esbuild: true
