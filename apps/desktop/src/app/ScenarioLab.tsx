@@ -244,7 +244,7 @@ export function ScenarioLab({
             </div>
             <div className="fixture-family-grid">
               {entityFamilies.map(([family, records]) => (
-                <div key={family}>
+                <div key={family} data-family={family}>
                   <span>{familyLabels[family]}</span>
                   <strong>{records.length}</strong>
                 </div>

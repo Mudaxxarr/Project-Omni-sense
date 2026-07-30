@@ -33,6 +33,22 @@ const scenarios = [
   "recovery",
 ] as const;
 
+interface ScenarioApiProof {
+  scenario: {
+    id: string;
+  };
+  consequential_actions_enabled: boolean;
+  clock: {
+    stored_at_utc: string;
+    displayed_at_local: string;
+  };
+  summary: {
+    entity_family_count: number;
+    record_count: number;
+  };
+  entities: Record<string, unknown[]>;
+}
+
 for (const scenario of scenarios) {
   for (const viewport of viewports) {
     test(`${scenario} fixture is safe at ${viewport.name}`, async ({ page }) => {
@@ -74,6 +90,28 @@ for (const scenario of scenarios) {
           name: new RegExp(`^${scenario}$`, "i"),
         }),
       ).toHaveAttribute("aria-pressed", "true");
+
+      const apiResponse = await page.request.get(
+        `http://127.0.0.1:8765/v1/scenarios/${scenario}`,
+      );
+      expect(apiResponse.status()).toBe(200);
+      const apiProof = (await apiResponse.json()) as ScenarioApiProof;
+      expect(apiProof.scenario.id).toBe(scenario);
+      expect(apiProof.consequential_actions_enabled).toBe(false);
+      await expect(
+        page.getByText(
+          `${apiProof.summary.entity_family_count} entity families`,
+        ),
+      ).toBeVisible();
+      await expect(
+        page.getByText(`${apiProof.summary.record_count} deterministic`),
+      ).toBeVisible();
+      await expect(page.getByText(apiProof.clock.stored_at_utc)).toBeVisible();
+      for (const [family, records] of Object.entries(apiProof.entities)) {
+        await expect(
+          page.locator(`[data-family="${family}"] strong`),
+        ).toHaveText(String(records.length));
+      }
 
       const hasHorizontalOverflow = await page.evaluate(
         () =>
