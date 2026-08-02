@@ -17,7 +17,7 @@ concurrency:
 jobs:
   phase0-parity:
     name: Windows deterministic parity
-    runs-on: windows-latest
+    runs-on: windows-2025
     timeout-minutes: 45
 
     steps:
@@ -34,6 +34,7 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           version: "0.11.32"
+          python-version: "3.12.13"
           enable-cache: true
 
       - name: Install locked dependencies
@@ -52,6 +53,14 @@ jobs:
           $pgReady = "C:\Program Files\PostgreSQL\16\bin\pg_isready.exe"
           if (-not (Test-Path -LiteralPath $pgReady)) {
             choco.exe install postgresql16 --version=16.14.0 --yes --no-progress --params "'/Password:omniscience-ci-local-only'"
+          }
+          $pgServer = "C:\Program Files\PostgreSQL\16\bin\postgres.exe"
+          if (-not (Test-Path -LiteralPath $pgServer)) {
+            throw "PostgreSQL 16 server binary is missing."
+          }
+          $postgresVersion = (& $pgServer --version | Out-String).Trim()
+          if ($postgresVersion -ne "postgres (PostgreSQL) 16.14") {
+            throw "PostgreSQL server must be exactly 16.14; found $postgresVersion."
           }
           $pgService = Get-Service -Name "postgresql*16*" -ErrorAction Stop |
             Select-Object -First 1
