@@ -10,6 +10,7 @@ import sys
 import xml.etree.ElementTree as element_tree
 import zipfile
 from collections.abc import Mapping, Sequence
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 from zlib import crc32, decompress
@@ -31,6 +32,20 @@ FEATURE_STATES = {
         "recovery",
     ),
 }
+SCENARIO_ENTITY_FAMILIES = (
+    "users",
+    "roles",
+    "financial_imports",
+    "customers",
+    "visits",
+    "products",
+    "promises",
+    "tasks",
+    "evidence",
+    "meetings",
+    "provider_responses",
+    "model_outcomes",
+)
 
 
 class CiContractError(ValueError):
@@ -47,6 +62,17 @@ def _require_string(value: object, description: str) -> str:
     if not isinstance(value, str) or not value:
         raise CiContractError(f"{description} must be a non-empty string.")
     return value
+
+
+def _parse_timestamp(value: object, description: str) -> datetime:
+    timestamp = _require_string(value, description)
+    try:
+        parsed = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+    except ValueError as error:
+        raise CiContractError(f"{description} is not an ISO 8601 timestamp.") from error
+    if parsed.tzinfo is None:
+        raise CiContractError(f"{description} must include a UTC offset.")
+    return parsed
 
 
 def _expected_screenshots(feature: str) -> tuple[str, ...]:
@@ -192,7 +218,28 @@ def _require_junit(path: Path) -> None:
             raise CiContractError("Playwright JUnit result contains a failed or skipped test.")
 
 
-def _require_trace(path: Path) -> None:
+def _read_trace_records(payload: bytes, description: str) -> tuple[Mapping[str, Any], ...]:
+    try:
+        text = payload.decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise CiContractError(f"{description} is not UTF-8 JSON lines.") from error
+    records: list[Mapping[str, Any]] = []
+    for line_number, line in enumerate(text.splitlines(), start=1):
+        if not line.strip():
+            continue
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError as error:
+            raise CiContractError(
+                f"{description} line {line_number} is not valid JSON."
+            ) from error
+        records.append(_require_mapping(record, f"{description} line {line_number}"))
+    if not records:
+        raise CiContractError(f"{description} contains no Playwright records.")
+    return tuple(records)
+
+
+def _require_trace(path: Path, feature: str) -> None:
     _require_nonempty_file(path, "critical-journey trace")
     if not zipfile.is_zipfile(path):
         raise CiContractError(f"critical-journey trace is not a zip archive: {path}")
@@ -225,6 +272,72 @@ def _require_trace(path: Path) -> None:
     if empty_entries:
         raise CiContractError(
             f"critical-journey trace contains empty Playwright entries: {empty_entries}"
+        )
+    with zipfile.ZipFile(path) as archive:
+        test_records = _read_trace_records(archive.read("test.trace"), "test trace")
+        browser_records = tuple(
+            record
+            for name in sorted(trace_entries)
+            for record in _read_trace_records(archive.read(name), f"browser trace {name}")
+        )
+        network_records = tuple(
+            record
+            for name in sorted(network_entries)
+            for record in _read_trace_records(archive.read(name), f"network trace {name}")
+        )
+
+    if not any(
+        record.get("type") == "context-options" and record.get("origin") == "testRunner"
+        for record in test_records
+    ) or not any(
+        record.get("type") == "before" and record.get("class") == "Test"
+        for record in test_records
+    ):
+        raise CiContractError("critical-journey trace lacks Playwright test-runner records.")
+    if not any(
+        record.get("type") == "context-options"
+        and record.get("origin") == "library"
+        and record.get("browserName") == "chromium"
+        and isinstance(record.get("playwrightVersion"), str)
+        for record in browser_records
+    ) or not any(
+        record.get("type") == "before"
+        and record.get("class") == "BrowserContext"
+        and record.get("method") == "newPage"
+        for record in browser_records
+    ):
+        raise CiContractError("critical-journey trace lacks Chromium browser records.")
+
+    required_urls = {
+        "http://127.0.0.1:4173/",
+        (
+            "http://127.0.0.1:8765/v1/health"
+            if feature == "P0-SHELL-01"
+            else "http://127.0.0.1:8765/v1/scenarios/valid"
+        ),
+    }
+    successful_gets: set[str] = set()
+    for record in network_records:
+        if record.get("type") != "resource-snapshot":
+            continue
+        snapshot = record.get("snapshot")
+        if not isinstance(snapshot, Mapping):
+            continue
+        request = snapshot.get("request")
+        response = snapshot.get("response")
+        if not isinstance(request, Mapping) or not isinstance(response, Mapping):
+            continue
+        url = request.get("url")
+        if request.get("method") != "GET" or response.get("status") != 200:
+            continue
+        if isinstance(url, str):
+            successful_gets.add(url)
+    if not all(
+        any(url == required or url.startswith(f"{required}?") for url in successful_gets)
+        for required in required_urls
+    ):
+        raise CiContractError(
+            "critical-journey trace lacks successful local UI and API requests."
         )
 
 
@@ -298,25 +411,79 @@ def _require_api_contract(feature: str, path: Path) -> None:
     available = api.get("available_scenarios")
     if not isinstance(available, Sequence) or isinstance(available, (str, bytes)) or not available:
         raise CiContractError("runtime API proof available_scenarios is invalid.")
+    available_ids: list[str] = []
+    for index, available_scenario in enumerate(available):
+        scenario_entry = _require_mapping(
+            available_scenario, f"runtime API proof available_scenarios[{index}]"
+        )
+        available_ids.append(
+            _require_string(
+                scenario_entry.get("id"), f"runtime API proof available_scenarios[{index}] id"
+            )
+        )
+        for field in ("label", "status"):
+            _require_string(
+                scenario_entry.get(field),
+                f"runtime API proof available_scenarios[{index}] {field}",
+            )
+    if tuple(available_ids) != FEATURE_STATES[feature]:
+        raise CiContractError("runtime API proof available_scenarios is incomplete.")
     clock = _require_mapping(api.get("clock"), "runtime API proof clock")
     if clock.get("deterministic") is not True or clock.get("timezone") != "Asia/Karachi":
         raise CiContractError("runtime API proof clock is invalid.")
-    for field in ("stored_at_utc", "displayed_at_local"):
-        _require_string(clock.get(field), f"runtime API proof clock {field}")
+    stored_at_utc = _parse_timestamp(
+        clock.get("stored_at_utc"), "runtime API proof clock stored_at_utc"
+    )
+    displayed_at_local = _parse_timestamp(
+        clock.get("displayed_at_local"), "runtime API proof clock displayed_at_local"
+    )
+    if stored_at_utc.utcoffset() != timedelta(0):
+        raise CiContractError("runtime API proof stored_at_utc must be UTC.")
+    if displayed_at_local.utcoffset() != timedelta(hours=5):
+        raise CiContractError("runtime API proof displayed_at_local must use Asia/Karachi offset.")
+    if stored_at_utc.astimezone(UTC) != displayed_at_local.astimezone(UTC):
+        raise CiContractError("runtime API proof UTC and local clocks are not the same instant.")
     summary = _require_mapping(api.get("summary"), "runtime API proof summary")
-    if (
-        not isinstance(summary.get("entity_family_count"), int)
-        or summary["entity_family_count"] <= 0
-    ):
+    if summary.get("entity_family_count") != len(SCENARIO_ENTITY_FAMILIES):
         raise CiContractError("runtime API proof entity_family_count is invalid.")
-    if not isinstance(summary.get("record_count"), int) or summary["record_count"] < 0:
+    if not isinstance(summary.get("record_count"), int) or summary["record_count"] <= 0:
         raise CiContractError("runtime API proof record_count is invalid.")
     entities = _require_mapping(api.get("entities"), "runtime API proof entities")
-    if not entities:
-        raise CiContractError("runtime API proof entities is empty.")
+    if set(entities) != set(SCENARIO_ENTITY_FAMILIES):
+        raise CiContractError("runtime API proof entity families are incomplete.")
+    record_count = 0
+    for family in SCENARIO_ENTITY_FAMILIES:
+        records = entities[family]
+        if not isinstance(records, Sequence) or isinstance(records, (str, bytes)) or not records:
+            raise CiContractError(f"runtime API proof entity family {family} is invalid.")
+        for index, record in enumerate(records):
+            entity = _require_mapping(
+                record, f"runtime API proof entity family {family}[{index}]"
+            )
+            entity_id = _require_string(
+                entity.get("id"), f"runtime API proof entity family {family}[{index}] id"
+            )
+            if not entity_id.startswith("fx-"):
+                raise CiContractError(f"runtime API proof entity {entity_id} is not anonymized.")
+            _require_string(
+                entity.get("label"), f"runtime API proof entity family {family}[{index}] label"
+            )
+            _parse_timestamp(
+                entity.get("recorded_at_utc"),
+                f"runtime API proof entity family {family}[{index}] recorded_at_utc",
+            )
+            _require_mapping(
+                entity.get("attributes"),
+                f"runtime API proof entity family {family}[{index}] attributes",
+            )
+            record_count += 1
+    if record_count != summary["record_count"]:
+        raise CiContractError("runtime API proof record_count does not reconcile.")
     signals = api.get("signals")
     if not isinstance(signals, Sequence) or isinstance(signals, (str, bytes)) or not signals:
         raise CiContractError("runtime API proof signals is invalid.")
+    for index, signal in enumerate(signals):
+        _require_string(signal, f"runtime API proof signal[{index}]")
 
 
 def _require_audit_proof(feature: str, path: Path) -> None:
@@ -404,7 +571,7 @@ def validate_phase0_evidence(
         if expected_line not in console_text:
             raise CiContractError(f"browser proof is missing: {expected_line}")
     _require_junit(feature_dir / "test-results.xml")
-    _require_trace(feature_dir / "trace.zip")
+    _require_trace(feature_dir / "trace.zip", feature)
 
     playwright_root = artifact_root / "playwright"
     raw_screenshot_dir = playwright_root / (

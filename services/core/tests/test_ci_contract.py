@@ -11,6 +11,7 @@ import yaml
 from services.core.app.ci_contract import (
     CI_ARTIFACT_ROOT,
     FEATURE_STATES,
+    SCENARIO_ENTITY_FAMILIES,
     VIEWPORTS,
     CiContractError,
     _expected_screenshots,
@@ -83,6 +84,17 @@ def _api_contract(feature: str) -> dict[str, object]:
             },
             "data_connection": {"status": "not_connected", "detail": "Phase 0"},
         }
+    entities = {
+        family: [
+            {
+                "id": f"fx-{family.replace('_', '-')}",
+                "label": f"Fixture {family}",
+                "recorded_at_utc": "2026-08-02T00:00:00Z",
+                "attributes": {},
+            }
+        ]
+        for family in SCENARIO_ENTITY_FAMILIES
+    }
     return {
         "contract_version": "scenario.v1",
         "fixture_version": "phase0-fixtures.v1",
@@ -98,33 +110,58 @@ def _api_contract(feature: str) -> dict[str, object]:
             "headline": "OK",
             "detail": "OK",
         },
-        "available_scenarios": [{"id": "valid", "label": "Valid", "status": "ready"}],
+        "available_scenarios": [
+            {"id": state, "label": state.title(), "status": "ready"}
+            for state in FEATURE_STATES[feature]
+        ],
         "clock": {
             "deterministic": True,
             "stored_at_utc": "2026-08-02T00:00:00Z",
             "displayed_at_local": "2026-08-02T05:00:00+05:00",
             "timezone": "Asia/Karachi",
         },
-        "summary": {"entity_family_count": 1, "record_count": 1},
-        "entities": {
-            "users": [
-                {
-                    "id": "fx-user",
-                    "label": "Fixture",
-                    "recorded_at_utc": "2026-08-02T00:00:00Z",
-                    "attributes": {},
-                }
-            ]
+        "summary": {
+            "entity_family_count": len(SCENARIO_ENTITY_FAMILIES),
+            "record_count": len(SCENARIO_ENTITY_FAMILIES),
         },
+        "entities": entities,
         "signals": ["read only"],
     }
 
 
-def _write_trace(path: Path) -> None:
+def _write_trace(path: Path, feature: str) -> None:
+    api_url = (
+        "http://127.0.0.1:8765/v1/health"
+        if feature == "P0-SHELL-01"
+        else "http://127.0.0.1:8765/v1/scenarios/valid"
+    )
+    test_records = (
+        {"type": "context-options", "origin": "testRunner"},
+        {"type": "before", "class": "Test", "method": "hook"},
+    )
+    browser_records = (
+        {
+            "type": "context-options",
+            "origin": "library",
+            "browserName": "chromium",
+            "playwrightVersion": "1.62.0",
+        },
+        {"type": "before", "class": "BrowserContext", "method": "newPage"},
+    )
+    network_records = tuple(
+        {
+            "type": "resource-snapshot",
+            "snapshot": {
+                "request": {"method": "GET", "url": url},
+                "response": {"status": 200},
+            },
+        }
+        for url in ("http://127.0.0.1:4173/", api_url)
+    )
     with zipfile.ZipFile(path, "w") as archive:
-        archive.writestr("test.trace", "{}")
-        archive.writestr("0-trace.trace", "{}")
-        archive.writestr("0-trace.network", "{}")
+        archive.writestr("test.trace", "\n".join(map(json.dumps, test_records)))
+        archive.writestr("0-trace.trace", "\n".join(map(json.dumps, browser_records)))
+        archive.writestr("0-trace.network", "\n".join(map(json.dumps, network_records)))
 
 
 def _write_valid_evidence(root: Path, feature: str) -> Path:
@@ -172,7 +209,7 @@ def _write_valid_evidence(root: Path, feature: str) -> Path:
         '<testcase name="proof" /></testsuite></testsuites>'
     )
     (feature_dir / "test-results.xml").write_text(junit, encoding="utf-8")
-    _write_trace(feature_dir / "trace.zip")
+    _write_trace(feature_dir / "trace.zip", feature)
 
     raw_screenshot_dir = root / "playwright" / (
         "phase0-scenarios" if feature == "P0-SCENARIO-01" else "phase0"
@@ -331,6 +368,38 @@ def test_shared_evidence_validator_rejects_a_wrong_scenario_api_contract(tmp_pat
 @pytest.mark.parametrize(
     "mutation, expected_error",
     (
+        ("missing_family", "families"),
+        ("clock_mismatch", "same instant"),
+        ("record_mismatch", "does not reconcile"),
+    ),
+)
+def test_shared_evidence_validator_rejects_incomplete_scenario_facts(
+    tmp_path: Path, mutation: str, expected_error: str
+) -> None:
+    feature = "P0-SCENARIO-01"
+    feature_dir = _write_valid_evidence(tmp_path, feature)
+    api = _api_contract(feature)
+    if mutation == "missing_family":
+        entities = api["entities"]
+        assert isinstance(entities, dict)
+        entities.pop("model_outcomes")
+    elif mutation == "clock_mismatch":
+        clock = api["clock"]
+        assert isinstance(clock, dict)
+        clock["displayed_at_local"] = "2026-08-02T06:00:00+05:00"
+    else:
+        summary = api["summary"]
+        assert isinstance(summary, dict)
+        summary["record_count"] = 99
+    (feature_dir / "api-contract.json").write_text(json.dumps(api), encoding="utf-8")
+
+    with pytest.raises(CiContractError, match=expected_error):
+        validate_phase0_evidence(feature, tmp_path)
+
+
+@pytest.mark.parametrize(
+    "mutation, expected_error",
+    (
         ("runtime", "runtime API proof"),
         ("wrong_api", "runtime API proof"),
         ("wrong_audit", "audit proof"),
@@ -342,6 +411,7 @@ def test_shared_evidence_validator_rejects_a_wrong_scenario_api_contract(tmp_pat
         ("fake_trace", "trace"),
         ("missing_trace_entries", "trace entries"),
         ("empty_trace_entries", "empty Playwright entries"),
+        ("placeholder_trace", "Playwright"),
         ("truncated_trace", "trace"),
         ("manifest", "manifest status"),
     ),
@@ -385,6 +455,11 @@ def test_shared_evidence_validator_rejects_missing_or_invalid_proof(
             archive.writestr("test.trace", "")
             archive.writestr("0-trace.trace", "")
             archive.writestr("0-trace.network", "")
+    elif mutation == "placeholder_trace":
+        with zipfile.ZipFile(feature_dir / "trace.zip", "w") as archive:
+            archive.writestr("test.trace", "{}")
+            archive.writestr("0-trace.trace", "{}")
+            archive.writestr("0-trace.network", "{}")
     elif mutation == "truncated_trace":
         (feature_dir / "trace.zip").write_bytes((feature_dir / "trace.zip").read_bytes()[:-5])
     else:
