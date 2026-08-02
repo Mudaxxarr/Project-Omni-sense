@@ -2,7 +2,7 @@
 
 | Phase | Status | Integrated tag | Production blockers |
 |---|---|---|---|
-| Phase 0 - Founder Control Plane | In progress; P0-SHELL-01 and P0-SCENARIO-01 verified | None; verified sources `4b8a7f8` and `38533aa` | CI parity, owner North Star approval |
+| Phase 0 - Founder Control Plane | In progress; P0-SHELL-01 and P0-SCENARIO-01 verified locally; P0-CI-01 is not verified until a hosted Windows run passes | None; verified sources `4b8a7f8` and `38533aa` | Real hosted CI parity run, required-check/ruleset enforcement, and owner North Star approval |
 | Phase 1 - Trust Kernel | Not started | None | Phase 0 |
 | Phase 2 - Owner Now | Not started | None | Phase 1 and financial source contract |
 | Phase 3 - Customer Execution | Not started | None | Phase 2 |

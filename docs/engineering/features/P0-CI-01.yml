@@ -1,0 +1,39 @@
+id: P0-CI-01
+title: Reproduce Phase 0 verification on a clean Windows CI runner
+status: in_progress
+source_requirements:
+  - Phase 0 exit gate: CI runs the same deterministic commands
+  - P0-SHELL-01
+  - P0-SCENARIO-01
+roles:
+  - developer
+  - owner
+input_sources:
+  - repository_lockfiles
+  - feature_contracts
+  - verification_harness
+authority:
+  observe:
+    - developer
+    - owner
+  change: []
+  external_action: none
+visible_outcomes:
+  - a Windows CI job reruns both verified Phase 0 browser journeys
+  - the job publishes manifests, screenshots, test results, and traces
+  - a failed or missing proof blocks the Phase 0 release gate
+required_states:
+  - automated_gates_passed
+  - failed
+  - cancelled
+forbidden_outcomes:
+  - production or provider credentials
+  - cloud-model credentials or inference
+  - mutation of sealed repository verification evidence
+  - a hosted CI run claimed before a remote workflow actually passes
+proof_scenarios:
+  - the repository-owned CI command verifies P0-SHELL-01 and P0-SCENARIO-01
+  - both feature verifiers write only to isolated CI artifact output
+  - exact viewport screenshots and critical-journey traces are uploaded
+  - workflow contract tests reject missing setup, runtime, or evidence steps
+rollback: Remove the workflow and CI wrapper; retain the local feature verifier and sealed proof.

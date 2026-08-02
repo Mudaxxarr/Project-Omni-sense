@@ -7,6 +7,7 @@ node_modules/
 
 # Python
 .venv/
+.uv-cache/
 **/__pycache__/
 *.py[cod]
 .pytest_cache/
@@ -21,6 +22,7 @@ node_modules/
 
 # Browser evidence stays local; manifests and reviews remain versionable
 output/playwright/
+output/ci-verification/
 **/output/playwright/
 artifacts/verification/**/screenshots/
 artifacts/verification/**/trace.zip

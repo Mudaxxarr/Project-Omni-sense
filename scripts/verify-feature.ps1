@@ -2,6 +2,8 @@
 param(
     [ValidateSet("P0-SHELL-01", "P0-SCENARIO-01")]
     [string]$Feature = "P0-SHELL-01",
+    [string]$ArtifactRoot = "artifacts\verification",
+    [string]$PlaywrightRoot = "output\playwright",
     [switch]$AllowMissingPostgres,
     [switch]$SkipRuntime
 )
@@ -10,11 +12,19 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$artifactDir = Join-Path $repoRoot "artifacts\verification\$Feature"
+$artifactDir = Join-Path $repoRoot "$ArtifactRoot\$Feature"
+$artifactDir = [System.IO.Path]::GetFullPath($artifactDir)
+$repoBoundary = [System.IO.Path]::GetFullPath($repoRoot).TrimEnd("\") + "\"
+if (-not $artifactDir.StartsWith($repoBoundary, [System.StringComparison]::OrdinalIgnoreCase)) {
+    throw "ArtifactRoot must resolve inside the repository."
+}
 $screenshotArtifactDir = Join-Path $artifactDir "screenshots"
 $manifestPath = Join-Path $artifactDir "manifest.json"
 $featureContractPath = Join-Path $repoRoot "docs\engineering\features\$Feature.yml"
-$playwrightRoot = Join-Path $repoRoot "output\playwright"
+$playwrightRoot = [System.IO.Path]::GetFullPath((Join-Path $repoRoot $PlaywrightRoot))
+if (-not $playwrightRoot.StartsWith($repoBoundary, [System.StringComparison]::OrdinalIgnoreCase)) {
+    throw "PlaywrightRoot must resolve inside the repository."
+}
 $playwrightScreenshotDir = if ($Feature -eq "P0-SCENARIO-01") {
     Join-Path $playwrightRoot "phase0-scenarios"
 } else {
@@ -94,7 +104,17 @@ try {
             }
         }
         Invoke-Gate "Browser state and interaction proof" {
-            & corepack.cmd pnpm --filter "@omniscience/desktop" test:e2e
+            $previousPlaywrightRoot = $env:OMNISCIENCE_PLAYWRIGHT_ROOT
+            try {
+                $env:OMNISCIENCE_PLAYWRIGHT_ROOT = $playwrightRoot
+                & corepack.cmd pnpm --filter "@omniscience/desktop" test:e2e
+            } finally {
+                if ($null -eq $previousPlaywrightRoot) {
+                    Remove-Item Env:OMNISCIENCE_PLAYWRIGHT_ROOT -ErrorAction SilentlyContinue
+                } else {
+                    $env:OMNISCIENCE_PLAYWRIGHT_ROOT = $previousPlaywrightRoot
+                }
+            }
         }
     }
 
