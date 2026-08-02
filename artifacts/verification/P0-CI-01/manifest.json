@@ -1,0 +1,84 @@
+{
+  "schema": "omniscience.hosted-ci-verification.v1",
+  "feature_id": "P0-CI-01",
+  "source_commit": "36ce4a657b735e9c097763d2dbbfcdd1d7e4a9bf",
+  "feature_contract_sha256": "E6225505358E336610E04A3F8E82A0B0FF04F66E6BA5E0B3AC38D999DA40F2C8",
+  "hosted_run_contract_sha256": "6AB835C871B18254284110FBDB16DA0AFBAC61547335B17FEF436B92D7940D07",
+  "status": "verified",
+  "verified_at": "2026-08-02T23:02:52Z",
+  "hosted_run": {
+    "provider": "GitHub Actions",
+    "repository": "Mudaxxarr/Project-Omni-sense",
+    "workflow": "Phase 0 CI parity",
+    "run_id": 30770864758,
+    "run_url": "https://github.com/Mudaxxarr/Project-Omni-sense/actions/runs/30770864758",
+    "runner": "windows-2025",
+    "conclusion": "success",
+    "artifact": {
+      "id": 8840638240,
+      "name": "phase0-ci-verification-1",
+      "size_bytes": 31961603,
+      "retention_days": 14
+    }
+  },
+  "commands": [
+    {
+      "name": "Install locked dependencies",
+      "status": "passed"
+    },
+    {
+      "name": "Install Chromium",
+      "status": "passed"
+    },
+    {
+      "name": "Ensure native PostgreSQL 16",
+      "status": "passed"
+    },
+    {
+      "name": "Run repository-owned CI parity",
+      "status": "passed"
+    },
+    {
+      "name": "Upload deterministic verification evidence",
+      "status": "passed"
+    }
+  ],
+  "fixtures": [
+    "health.v1",
+    "phase0-fixtures.v1",
+    "scenario.v1"
+  ],
+  "roles": [
+    "developer",
+    "owner"
+  ],
+  "states": [
+    "automated_gates_passed"
+  ],
+  "viewports": [
+    "1280x720",
+    "1440x900",
+    "1920x1080"
+  ],
+  "screenshots": [
+    "GitHub Actions artifact phase0-ci-verification-1/P0-SHELL-01/screenshots",
+    "GitHub Actions artifact phase0-ci-verification-1/P0-SCENARIO-01/screenshots"
+  ],
+  "api_checks": [
+    {
+      "endpoint": "GET /v1/health",
+      "http_status": 200,
+      "contract_version": "health.v1"
+    },
+    {
+      "endpoint": "GET /v1/scenarios/valid",
+      "http_status": 200,
+      "contract_version": "scenario.v1"
+    }
+  ],
+  "known_limitations": [
+    "The hosted artifact is retained by GitHub Actions for 14 days.",
+    "The repository has no default branch or required-check/ruleset enforcement yet.",
+    "Phase 0 still requires owner North Star approval before an integration or release tag."
+  ]
+}

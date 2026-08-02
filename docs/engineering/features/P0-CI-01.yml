@@ -1,6 +1,6 @@
 id: P0-CI-01
 title: Reproduce Phase 0 verification on a clean Windows CI runner
-status: in_progress
+status: verified
 source_requirements:
   - Phase 0 exit gate: CI runs the same deterministic commands
   - P0-SHELL-01
