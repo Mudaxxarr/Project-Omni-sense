@@ -77,6 +77,7 @@ def _api_contract(feature: str) -> dict[str, object]:
             "prerequisites": {
                 "core_api": prerequisite,
                 "postgresql": prerequisite,
+                "storage_environment": prerequisite,
                 "evidence_vault": prerequisite,
                 "audit_chain": prerequisite,
                 "retention_worker": prerequisite,

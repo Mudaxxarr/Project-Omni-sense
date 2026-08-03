@@ -169,10 +169,6 @@ try {
             $screenshotNames.Add("$state-$viewport.png")
         }
     }
-    if ($Feature -eq "P0-SHELL-01") {
-        $screenshotNames.Add("source-setup-1440x900.png")
-    }
-
     if (-not $SkipRuntime) {
         foreach ($screenshotName in $screenshotNames) {
             $sourceScreenshot = Join-Path $playwrightScreenshotDir $screenshotName
