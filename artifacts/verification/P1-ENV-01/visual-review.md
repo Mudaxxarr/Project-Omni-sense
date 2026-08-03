@@ -25,3 +25,10 @@ explicit fixture mode.
 `GET /v1/health` returned HTTP 200 with `postgresql.status = ready` and
 `storage_environment.status = not_configured`. The desktop showed the same
 two values and did not claim that source data was connected.
+
+## Review follow-up
+
+The startup factory now validates PostgreSQL-mode configuration before the
+application object is initialized, and the readiness probe uses the configured
+database host and port rather than an unrelated default listener. The clean
+full parity run passed after those corrections.

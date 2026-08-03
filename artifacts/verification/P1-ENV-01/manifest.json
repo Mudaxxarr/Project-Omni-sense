@@ -1,10 +1,10 @@
 {
   "schema": "omniscience.verification.v1",
   "feature_id": "P1-ENV-01",
-  "source_commit": "2a46798874e0a0c0e7254f2de0055e26e2b8a88c",
+  "source_commit": "17ab8f54d3a3615b71a0b21c0cf659ef3ac95ff9",
   "feature_contract_sha256": "3dbc09fd10ae0fe583711aa8044f4b0255dada0dc8b1e2421a0a63e6ee0d9278",
   "status": "verified",
-  "verified_at": "2026-08-03T13:50:00Z",
+  "verified_at": "2026-08-03T16:00:00Z",
   "commands": [
     {
       "name": "Native dependency preflight",
@@ -14,7 +14,7 @@
     {
       "name": "Backend tests",
       "status": "passed",
-      "evidence": "42 passed"
+      "evidence": "44 passed"
     },
     {
       "name": "Python lint and strict types",
@@ -30,6 +30,11 @@
       "name": "Browser proof",
       "status": "passed",
       "evidence": "43 Playwright tests passed with no console, page or failed-request errors"
+    },
+    {
+      "name": "PostgreSQL startup guard",
+      "status": "passed",
+      "evidence": "PostgreSQL mode rejected missing DATABASE_URL and APP_ENCRYPTION_KEY_ID before application initialization"
     }
   ],
   "fixtures": [
