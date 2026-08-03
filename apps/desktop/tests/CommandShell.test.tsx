@@ -23,6 +23,10 @@ const healthyView: HealthView = {
       status: "not_configured",
       detail: "Native PostgreSQL 16 has not been configured.",
     },
+    storage_environment: {
+      status: "not_configured",
+      detail: "Fixture mode is active; protected PostgreSQL storage is not configured.",
+    },
     evidence_vault: {
       status: "planned",
       detail: "Phase 1 capability.",
@@ -58,8 +62,11 @@ describe("CommandShell", () => {
     expect(
       screen.getByText("Local only. No data leaves this PC."),
     ).toBeVisible();
-    expect(screen.getByText("Data not connected")).toBeVisible();
     expect(screen.getByText("PostgreSQL setup required")).toBeVisible();
+    expect(screen.getByText("Secure storage configuration required")).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: "Start source setup" }),
+    ).toBeDisabled();
   });
 
   it("locks consequential setup when the backend is stale", () => {

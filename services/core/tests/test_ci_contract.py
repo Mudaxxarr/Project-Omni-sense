@@ -77,6 +77,7 @@ def _api_contract(feature: str) -> dict[str, object]:
             "prerequisites": {
                 "core_api": prerequisite,
                 "postgresql": prerequisite,
+                "storage_environment": prerequisite,
                 "evidence_vault": prerequisite,
                 "audit_chain": prerequisite,
                 "retention_worker": prerequisite,
@@ -228,6 +229,13 @@ def _write_valid_evidence(root: Path, feature: str) -> Path:
 
 def test_workflow_parses_and_enforces_the_deterministic_phase0_contract() -> None:
     validate_workflow_contract(_workflow())
+
+
+def test_pull_requests_use_one_deterministic_parity_run() -> None:
+    triggers = _workflow()["on"]
+    assert isinstance(triggers, dict)
+    assert "pull_request" in triggers
+    assert "push" not in triggers
 
 
 def test_workflow_pins_windows_python_uv_and_postgresql_server_version() -> None:

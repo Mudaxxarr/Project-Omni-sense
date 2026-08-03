@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import os
 import shutil
 import subprocess
 from datetime import UTC, datetime
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from services.core.app.contracts import (
     DataConnectionView,
@@ -14,10 +14,10 @@ from services.core.app.contracts import (
     PrerequisitesView,
     RequirementView,
 )
+from services.core.app.settings import RuntimeSettings, load_runtime_settings
 
 
-def _postgresql_status() -> RequirementView:
-    database_url = os.getenv("OMNISCIENCE_DATABASE_URL", "").strip()
+def _postgresql_status(database_url: str | None = None) -> RequirementView:
     pg_isready = shutil.which("pg_isready")
     conventional_probe = Path(
         "C:/Program Files/PostgreSQL/16/bin/pg_isready.exe"
@@ -34,7 +34,15 @@ def _postgresql_status() -> RequirementView:
     try:
         arguments = [pg_isready, "--timeout", "2"]
         if database_url:
-            arguments.extend(["--dbname", database_url])
+            parsed = urlsplit(database_url)
+            if not parsed.hostname:
+                return RequirementView(
+                    status="unavailable",
+                    detail="Protected PostgreSQL configuration has no database host.",
+                )
+            arguments.extend(["--host", parsed.hostname])
+            if parsed.port is not None:
+                arguments.extend(["--port", str(parsed.port)])
         else:
             arguments.extend(["--host", "127.0.0.1", "--port", "5432"])
         result = subprocess.run(
@@ -62,16 +70,24 @@ def _postgresql_status() -> RequirementView:
     )
 
 
-def build_health_view() -> HealthView:
+def build_health_view(settings: RuntimeSettings | None = None) -> HealthView:
     """Return a fresh, deterministic view of the local runtime."""
 
-    postgresql = _postgresql_status()
+    runtime_settings = settings or load_runtime_settings()
+    postgresql = _postgresql_status(runtime_settings.database_url)
+    storage_environment = RequirementView(
+        status="not_configured"
+        if runtime_settings.is_fixture_mode
+        else "ready",
+        detail=runtime_settings.storage_configuration_detail,
+    )
     prerequisites = PrerequisitesView(
         core_api=RequirementView(
             status="ready",
             detail="Local core API is responding.",
         ),
         postgresql=postgresql,
+        storage_environment=storage_environment,
         evidence_vault=RequirementView(
             status="planned",
             detail="Evidence storage is scheduled for Phase 1.",
@@ -92,7 +108,11 @@ def build_health_view() -> HealthView:
 
     return HealthView(
         version="0.0.1",
-        status="healthy" if postgresql.status == "ready" else "degraded",
+        status=(
+            "healthy"
+            if postgresql.status == "ready" and storage_environment.status == "ready"
+            else "degraded"
+        ),
         checked_at=datetime.now(UTC),
         prerequisites=prerequisites,
         data_connection=DataConnectionView(

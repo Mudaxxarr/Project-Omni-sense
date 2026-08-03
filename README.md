@@ -4,7 +4,7 @@ Local-first executive intelligence, business execution, and governed automation 
 
 ## Current status
 
-Phase 0 is in progress. The repository is establishing:
+Phase 0 is complete and integrated. Phase 1 is now establishing:
 
 - the Founder Mode execution control plane;
 - a native Windows development preflight;
@@ -17,8 +17,8 @@ Phase 0 is in progress. The repository is establishing:
 No real accounting source, provider credential, external action, microphone, camera, or AI model is connected.
 
 `P0-SHELL-01` and fixture-only `P0-SCENARIO-01` are mechanically and visually
-verified against the native local stack. The Phase 0 release tag remains blocked
-on CI parity and the owner's one-time visual North Star approval.
+verified against the native local stack. `P0-CI-01` passed the hosted Windows
+parity workflow and was integrated through independently approved PR #1.
 
 ## Intended local commands
 

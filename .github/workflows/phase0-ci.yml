@@ -1,7 +1,6 @@
 name: Phase 0 CI parity
 
 on:
-  push:
   pull_request:
   schedule:
     - cron: "17 3 * * *"

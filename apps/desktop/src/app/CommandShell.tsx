@@ -44,6 +44,11 @@ const requirementCopy = {
     phase: "Phase 0",
     icon: Database,
   },
+  storage_environment: {
+    label: "Secure storage configuration required",
+    phase: "Phase 1",
+    icon: LockKey,
+  },
   evidence_vault: {
     label: "Evidence vault",
     phase: "Phase 1",
@@ -148,6 +153,8 @@ export function CommandShell({ health, scenario }: CommandShellProps) {
 
   const requirements = health?.prerequisites;
   const postgresReady = requirements?.postgresql.status === "ready";
+  const storageReady = requirements?.storage_environment.status === "ready";
+  const sourceSetupReady = postgresReady && storageReady;
 
   return (
     <div className="app-shell">
@@ -267,22 +274,24 @@ export function CommandShell({ health, scenario }: CommandShellProps) {
                     ? "Health check failed"
                     : isStale
                       ? "Data stale"
-                      : "Data not connected"}
+                    : "Data not connected"}
                 </strong>
                 <p>
                   {isError
                     ? "Local readiness could not be verified. Consequential controls are locked."
                     : isStale
                       ? "Data stale. Consequential controls are locked."
-                      : postgresReady
-                        ? "The local database is ready. Connect a read-only source in the next build gate."
-                        : "PostgreSQL setup required"}
+                      : !postgresReady
+                        ? "PostgreSQL setup required"
+                        : !storageReady
+                          ? "The local database is reachable, but its protected storage configuration is incomplete."
+                          : "The local database is ready. Connect a read-only source in the next build gate."}
                 </p>
               </div>
               <button
                 className="primary-action"
                 type="button"
-                disabled={isUnavailable}
+                disabled={isUnavailable || !sourceSetupReady}
                 onClick={() => setSetupOpen(true)}
               >
                 Start source setup
@@ -312,6 +321,10 @@ export function CommandShell({ health, scenario }: CommandShellProps) {
                     <RequirementRow
                       itemKey="postgresql"
                       requirement={requirements.postgresql}
+                    />
+                    <RequirementRow
+                      itemKey="storage_environment"
+                      requirement={requirements.storage_environment}
                     />
                     <RequirementRow
                       itemKey="evidence_vault"
@@ -403,13 +416,13 @@ export function CommandShell({ health, scenario }: CommandShellProps) {
             <p className="eyebrow">Source setup</p>
             <h2 id={setupTitleId}>Foundation first</h2>
             <p>
-              Source onboarding unlocks after native PostgreSQL passes its local
-              readiness check. This gate prevents evidence from entering an
-              unproven storage path.
+              Source onboarding unlocks only after native PostgreSQL and its
+              protected storage configuration both pass local readiness. This
+              gate prevents evidence from entering an unproven storage path.
             </p>
             <div className="dialog-check">
-              <span data-ready={postgresReady}>
-                {postgresReady ? (
+              <span data-ready={sourceSetupReady}>
+                {sourceSetupReady ? (
                   <CheckCircle aria-hidden="true" weight="fill" />
                 ) : (
                   <WarningCircle aria-hidden="true" weight="fill" />
@@ -417,12 +430,12 @@ export function CommandShell({ health, scenario }: CommandShellProps) {
               </span>
               <div>
                 <strong>
-                  {postgresReady
-                    ? "PostgreSQL is ready"
-                    : "PostgreSQL setup required"}
+                  {sourceSetupReady
+                    ? "Protected storage is ready"
+                    : "Secure storage configuration required"}
                 </strong>
                 <small>
-                  {requirements?.postgresql.detail ??
+                  {requirements?.storage_environment.detail ??
                     "The local core cannot report database readiness."}
                 </small>
               </div>

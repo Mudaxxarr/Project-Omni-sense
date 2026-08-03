@@ -86,8 +86,6 @@ def _expected_screenshots(feature: str) -> tuple[str, ...]:
         for state in states
         for viewport in VIEWPORTS
     )
-    if feature == "P0-SHELL-01":
-        screenshots += ("screenshots/source-setup-1440x900.png",)
     return screenshots
 
 
@@ -365,6 +363,7 @@ def _require_api_contract(feature: str, path: Path) -> None:
         for name in (
             "core_api",
             "postgresql",
+            "storage_environment",
             "evidence_vault",
             "audit_chain",
             "retention_worker",

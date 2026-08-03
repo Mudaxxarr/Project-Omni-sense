@@ -2,6 +2,10 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
+import {
+  getLocalApiResponse,
+  isViteHmrTransportError,
+} from "./browser-health";
 
 const playwrightRoot = process.env.OMNISCIENCE_PLAYWRIGHT_ROOT ?? "../../output/playwright";
 const artifactDir = path.resolve(process.cwd(), playwrightRoot, "phase0-scenarios");
@@ -49,7 +53,10 @@ for (const scenario of scenarios) {
       const browserErrors: string[] = [];
       const networkErrors: string[] = [];
       page.on("console", (message) => {
-        if (message.type() === "error") {
+        if (
+          message.type() === "error" &&
+          !isViteHmrTransportError(message.text())
+        ) {
           browserErrors.push(message.text());
         }
       });
@@ -85,7 +92,8 @@ for (const scenario of scenarios) {
         }),
       ).toHaveAttribute("aria-pressed", "true");
 
-      const apiResponse = await page.request.get(
+      const apiResponse = await getLocalApiResponse(
+        page,
         `http://127.0.0.1:8765/v1/scenarios/${scenario}`,
       );
       expect(apiResponse.status()).toBe(200);
@@ -146,6 +154,9 @@ for (const scenario of scenarios) {
 test("scenario switch changes the visible API-backed state", async ({ page }) => {
   await page.goto("/?scenario=valid", { waitUntil: "networkidle" });
 
+  await expect(
+    page.getByRole("button", { name: "Valid" }),
+  ).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "Stale" }).click();
 
   await expect(page).toHaveURL(/\?scenario=stale$/);
