@@ -231,6 +231,13 @@ def test_workflow_parses_and_enforces_the_deterministic_phase0_contract() -> Non
     validate_workflow_contract(_workflow())
 
 
+def test_pull_requests_use_one_deterministic_parity_run() -> None:
+    triggers = _workflow()["on"]
+    assert isinstance(triggers, dict)
+    assert "pull_request" in triggers
+    assert "push" not in triggers
+
+
 def test_workflow_pins_windows_python_uv_and_postgresql_server_version() -> None:
     workflow = _workflow()
     job = workflow["jobs"]["phase0-parity"]
