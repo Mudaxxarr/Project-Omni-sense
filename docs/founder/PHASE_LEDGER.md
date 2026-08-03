@@ -2,8 +2,8 @@
 
 | Phase | Status | Integrated tag | Production blockers |
 |---|---|---|---|
-| Phase 0 - Founder Control Plane | In progress; P0-SHELL-01 and P0-SCENARIO-01 are verified, and P0-CI-01 passed on a hosted Windows runner | None; verified sources `4b8a7f8`, `38533aa`, and hosted run `30770864758` for `36ce4a6` | Required-check/ruleset enforcement and owner North Star approval |
-| Phase 1 - Trust Kernel | Not started | None | Phase 0 |
+| Phase 0 - Founder Control Plane | Complete; P0-SHELL-01, P0-SCENARIO-01 and P0-CI-01 are integrated through reviewed PR #1 | Merge commit `b37e71f`; hosted run `30772818410` | None |
+| Phase 1 - Trust Kernel | In progress; foundation decisions are being frozen on an isolated feature branch | None | Phase 1 acceptance gate |
 | Phase 2 - Owner Now | Not started | None | Phase 1 and financial source contract |
 | Phase 3 - Customer Execution | Not started | None | Phase 2 |
 | Phase 4 - Cognitive Exoskeleton | Not started | None | Phase 3 and exact-PC model benchmark |
