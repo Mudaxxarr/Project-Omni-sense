@@ -1,4 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
+import path from "node:path";
+
+const playwrightRoot = path.resolve(
+  process.cwd(),
+  process.env.OMNISCIENCE_PLAYWRIGHT_ROOT ?? "../../output/playwright",
+);
 
 export default defineConfig({
   testDir: "./e2e",
@@ -10,7 +16,7 @@ export default defineConfig({
     [
       "junit",
       {
-        outputFile: "../../output/playwright/phase0/test-results.xml",
+        outputFile: path.join(playwrightRoot, "phase0", "test-results.xml"),
       },
     ],
   ],
@@ -29,5 +35,5 @@ export default defineConfig({
       height: 900,
     },
   },
-  outputDir: "../../output/playwright/phase0/test-results",
+  outputDir: path.join(playwrightRoot, "phase0", "test-results"),
 });

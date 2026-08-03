@@ -3,14 +3,8 @@ import { expect, test } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 
-const artifactDir = path.resolve(
-  process.cwd(),
-  "..",
-  "..",
-  "output",
-  "playwright",
-  "phase0",
-);
+const playwrightRoot = process.env.OMNISCIENCE_PLAYWRIGHT_ROOT ?? "../../output/playwright";
+const artifactDir = path.resolve(process.cwd(), playwrightRoot, "phase0");
 
 test.beforeAll(async () => {
   await mkdir(artifactDir, { recursive: true });
