@@ -146,6 +146,9 @@ for (const scenario of scenarios) {
 test("scenario switch changes the visible API-backed state", async ({ page }) => {
   await page.goto("/?scenario=valid", { waitUntil: "networkidle" });
 
+  await expect(
+    page.getByRole("button", { name: "Valid" }),
+  ).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "Stale" }).click();
 
   await expect(page).toHaveURL(/\?scenario=stale$/);
