@@ -2,7 +2,10 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
-import { isViteHmrTransportError } from "./browser-health";
+import {
+  getLocalApiResponse,
+  isViteHmrTransportError,
+} from "./browser-health";
 
 const playwrightRoot = process.env.OMNISCIENCE_PLAYWRIGHT_ROOT ?? "../../output/playwright";
 const artifactDir = path.resolve(process.cwd(), playwrightRoot, "phase0-scenarios");
@@ -89,7 +92,8 @@ for (const scenario of scenarios) {
         }),
       ).toHaveAttribute("aria-pressed", "true");
 
-      const apiResponse = await page.request.get(
+      const apiResponse = await getLocalApiResponse(
+        page,
         `http://127.0.0.1:8765/v1/scenarios/${scenario}`,
       );
       expect(apiResponse.status()).toBe(200);
