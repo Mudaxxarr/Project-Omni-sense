@@ -2,6 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
+import { isViteHmrTransportError } from "./browser-health";
 
 const playwrightRoot = process.env.OMNISCIENCE_PLAYWRIGHT_ROOT ?? "../../output/playwright";
 const artifactDir = path.resolve(process.cwd(), playwrightRoot, "phase0");
@@ -24,7 +25,10 @@ for (const scenario of scenarios) {
       const browserErrors: string[] = [];
       const networkErrors: string[] = [];
       page.on("console", (message) => {
-        if (message.type() === "error") {
+        if (
+          message.type() === "error" &&
+          !isViteHmrTransportError(message.text())
+        ) {
           browserErrors.push(message.text());
         }
       });
