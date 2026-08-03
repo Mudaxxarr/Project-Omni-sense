@@ -1,0 +1,42 @@
+id: P1-ENV-01
+title: Verify the protected local storage environment
+status: in_progress
+source_requirements:
+  - Phase 1 Task 2: Bootstrap the monorepo and deterministic development environment
+  - ADR 0001: Local-first modular core
+  - Data classification policy
+roles:
+  - developer
+  - owner
+input_sources:
+  - local_environment_v1
+  - native_postgresql_16
+authority:
+  observe:
+    - developer
+    - owner
+  change: []
+  external_action: none
+api_contracts:
+  - GET /v1/health
+visible_outcomes:
+  - the Command Centre distinguishes a reachable PostgreSQL service from a configured protected storage path
+  - missing database configuration or encryption-key identity is named without exposing a secret
+  - source onboarding stays locked until protected storage configuration is valid
+required_states:
+  - fixture_mode
+  - configuration_required
+  - protected_storage_ready
+  - database_unavailable
+  - error
+forbidden_outcomes:
+  - connecting a real accounting or POS source
+  - printing database credentials or encryption secret material
+  - claiming secure storage from a reachable PostgreSQL listener alone
+  - cloud-model inference
+proof_scenarios:
+  - PostgreSQL runtime mode rejects a missing DATABASE_URL with a clear startup error
+  - PostgreSQL runtime mode rejects a missing APP_ENCRYPTION_KEY_ID with a clear startup error
+  - fixture mode remains visibly labelled and cannot unlock source onboarding
+  - the protected-storage readiness shown in the UI matches the health API
+rollback: Remove storage configuration evaluation and retain the PostgreSQL listener health probe.

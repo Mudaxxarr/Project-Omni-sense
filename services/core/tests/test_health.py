@@ -23,6 +23,10 @@ def test_health_exposes_local_runtime_and_honest_prerequisites() -> None:
         "not_configured",
         "unavailable",
     }
+    assert payload["prerequisites"]["storage_environment"] == {
+        "status": "not_configured",
+        "detail": "Fixture mode is active; protected PostgreSQL storage is not configured.",
+    }
     assert payload["data_connection"]["status"] == "not_connected"
 
 
@@ -31,4 +35,3 @@ def test_health_has_a_stable_contract_version() -> None:
 
     assert response.status_code == 200
     assert response.json()["contract_version"] == "health.v1"
-

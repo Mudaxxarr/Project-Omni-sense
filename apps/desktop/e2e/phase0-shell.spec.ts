@@ -74,7 +74,10 @@ for (const scenario of scenarios) {
         ).toBeVisible();
       } else {
         await expect(page.getByText("Data not connected")).toBeVisible();
-        await expect(sourceSetup).toBeEnabled();
+        await expect(
+          page.getByText("Secure storage configuration required"),
+        ).toBeVisible();
+        await expect(sourceSetup).toBeDisabled();
         if (scenario === "live") {
           await expect(
             page.getByText(
@@ -83,7 +86,7 @@ for (const scenario of scenarios) {
           ).toBeVisible();
           await expect(
             page.getByText(
-              "The local database is ready. Connect a read-only source in the next build gate.",
+              "The local database is reachable, but its protected storage configuration is incomplete.",
             ),
           ).toBeVisible();
         } else {
@@ -122,22 +125,6 @@ for (const scenario of scenarios) {
       await page.screenshot({
         path: path.join(artifactDir, `${scenario}-${viewport.name}.png`),
       });
-
-      if (scenario === "degraded" && viewport.name === "1440x900") {
-        await sourceSetup.focus();
-        await expect(sourceSetup).toBeFocused();
-        await page.keyboard.press("Enter");
-        const dialog = page.getByRole("dialog", { name: "Foundation first" });
-        await expect(dialog).toBeVisible();
-        await expect(
-          dialog.getByText("PostgreSQL setup required"),
-        ).toBeVisible();
-        await page.screenshot({
-          path: path.join(artifactDir, "source-setup-1440x900.png"),
-        });
-        await page.keyboard.press("Escape");
-        await expect(dialog).toBeHidden();
-      }
 
       expect(browserErrors).toEqual([]);
       expect(networkErrors).toEqual([]);

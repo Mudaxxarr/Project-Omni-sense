@@ -22,6 +22,7 @@ export interface HealthView {
   prerequisites: {
     core_api: RequirementView;
     postgresql: RequirementView;
+    storage_environment: RequirementView;
     evidence_vault: RequirementView;
     audit_chain: RequirementView;
     retention_worker: RequirementView;
